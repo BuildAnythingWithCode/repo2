@@ -1,21 +1,21 @@
-"""Hindsight labels used ONLY to grade the metric (and to fit a few weights
-inside walk-forward folds).  Nothing here may ever feed the live score.
+"""Hindsight labels: the answer key the metric is graded against.
 
-Two kinds of ground truth:
+Two things are built here, both from price alone and both with full hindsight:
 
-1. Turning points.  A zig-zag on log price: a top is confirmed once price has
-   fallen by ``down`` from it, a bottom once price has risen by ``up`` from it.
-   Large thresholds find the handful of cycle turns, small ones find the local
-   swings, so every pivot gets a *significance* (the biggest threshold at which
-   it still shows up).
+1. Turning points.  A zig-zag on price: a top is confirmed once price has fallen
+   by ``down`` from it, a bottom once price has risen by ``up`` from it.  Large
+   thresholds find the handful of cycle turns, smaller ones the swings inside a
+   cycle, so every pivot is tagged with the biggest threshold at which it still
+   shows up.
 
-2. Oracle risk.  For each day, look ahead ``horizon`` days and ask how much of
-   the price range still to come lies below today's price:
+2. The hindsight value (``ideal_risk``).  For each day, where log price sat
+   inside the leg between the two turning points around it: exactly 0 at a
+   bottom, exactly 1 at a top and graded in between, which is the "every day
+   gets a score" target.
 
-       oracle = D / (D + U),  D = log(P_t / min future P),  U = log(max future P / P_t)
-
-   It is exactly 1 at a top (nothing but downside ahead), exactly 0 at a bottom
-   and graded in between, which is the "every day gets a score" target.
+These labels grade the metric, and at design time they decide which indicators
+are trusted (``select_by_rule`` in model.py; scripts/run_backtest.py re-runs
+that choice blind).  They never enter the daily calculation of the score.
 """
 from __future__ import annotations
 
@@ -63,10 +63,6 @@ def zigzag(price: pd.Series, up: float, down: float) -> list[Pivot]:
     return pivots
 
 
-def pivots_frame(pivots: list[Pivot]) -> pd.DataFrame:
-    return pd.DataFrame([{"date": p.date, "price": p.price, "kind": p.kind} for p in pivots])
-
-
 # Threshold ladder: (name, decline that confirms a top, rally that confirms a bottom).
 # Declines and rallies are matched in log terms: -50% <-> +100%, -33% <-> +50% ...
 LADDER = [
@@ -91,36 +87,6 @@ def multiscale_pivots(price: pd.Series) -> pd.DataFrame:
         for (d, k), lvl in best.items()
     ]
     return pd.DataFrame(rows).sort_values("date").reset_index(drop=True)
-
-
-def oracle_risk(price: pd.Series, horizon: int) -> pd.Series:
-    """Forward-looking range position in [0, 1]; NaN where the look-ahead is incomplete."""
-    logp = np.log(price)
-    # Forward rolling min/max over (t, t+horizon], via reversed backward windows.
-    rev = logp[::-1]
-    fmin = rev.rolling(horizon, min_periods=horizon).min()[::-1].shift(-1)
-    fmax = rev.rolling(horizon, min_periods=horizon).max()[::-1].shift(-1)
-    d = (logp - np.minimum(fmin, logp)).clip(lower=0)
-    u = (np.maximum(fmax, logp) - logp).clip(lower=0)
-    out = d / (d + u)
-    out[(d + u) == 0] = 0.5
-    return out.rename(f"oracle_{horizon}")
-
-
-def forward_extremes(price: pd.Series, horizon: int) -> pd.DataFrame:
-    """Max drawdown and max gain (as fractions) over the next ``horizon`` days."""
-    logp = np.log(price)
-    rev = logp[::-1]
-    fmin = rev.rolling(horizon, min_periods=horizon).min()[::-1].shift(-1)
-    fmax = rev.rolling(horizon, min_periods=horizon).max()[::-1].shift(-1)
-    fret = logp.shift(-horizon) - logp
-    return pd.DataFrame(
-        {
-            f"fwd_dd_{horizon}": np.exp(np.minimum(fmin - logp, 0)) - 1,
-            f"fwd_up_{horizon}": np.exp(np.maximum(fmax - logp, 0)) - 1,
-            f"fwd_ret_{horizon}": np.exp(fret) - 1,
-        }
-    )
 
 
 def leg_position(price: pd.Series, pivots: pd.DataFrame) -> pd.Series:

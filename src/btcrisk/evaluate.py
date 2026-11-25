@@ -205,17 +205,6 @@ def extreme_timing(risk: pd.Series, price: pd.Series, n_days: int = 30,
     return pd.DataFrame(rows, columns=cols)
 
 
-def timing_summary(risk: pd.Series, price: pd.Series, n_days: int = 30) -> dict:
-    t = extreme_timing(risk, price, n_days)
-    tops, bots = t[t.kind == "top"], t[t.kind == "bottom"]
-    return {
-        "peak_timing": float(np.exp(np.log(tops["price_vs_pivot"]).mean())) if len(tops) else np.nan,
-        "peak_worst": float(tops["price_vs_pivot"].min()) if len(tops) else np.nan,
-        "trough_timing": float(np.exp(np.log(bots["price_vs_pivot"]).mean())) if len(bots) else np.nan,
-        "trough_worst": float(bots["price_vs_pivot"].max()) if len(bots) else np.nan,
-    }
-
-
 def era_table(risk: pd.Series, price: pd.Series, eras: dict | None = None) -> pd.DataFrame:
     """How well the reading followed the hindsight cycle position, era by era."""
     ideal = ideal_risk(price)["ideal"]

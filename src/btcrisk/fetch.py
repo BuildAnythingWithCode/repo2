@@ -11,7 +11,7 @@ Sources (all free, no API keys):
   * Blockchain.com charts API   - transfer volume, addresses, miner revenue ...
   * alternative.me              - Crypto Fear & Greed index, from 2018-02-01
   * DefiLlama                   - total stablecoin supply, from 2017-11-29
-  * Coinbase Exchange           - daily OHLCV candles and the live price
+  * Coinbase Exchange           - daily OHLCV candles, a cross-check on price
   * CBBI (colintalkscrypto.com) - an existing public composite, benchmark only
 """
 from __future__ import annotations
@@ -214,12 +214,6 @@ def fetch_coinbase_daily(start: str = "2015-07-20", product: str = "BTC-USD") ->
     df["date"] = pd.to_datetime(df["ts"], unit="s").dt.normalize()
     df = df.drop(columns="ts").drop_duplicates("date").set_index("date").sort_index()
     return df.add_prefix("cb_")
-
-
-def fetch_spot_price(product: str = "BTC-USD") -> tuple[float, pd.Timestamp]:
-    """Latest traded price, for the intraday reading."""
-    r = _get(f"https://api.exchange.coinbase.com/products/{product}/ticker").json()
-    return float(r["price"]), pd.Timestamp(r["time"]).tz_convert("UTC")
 
 
 # ----------------------------------------------------------------------------
