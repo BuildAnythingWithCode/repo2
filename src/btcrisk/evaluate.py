@@ -20,6 +20,10 @@ ERAS = {
     "2019-22": ("2019-01-01", "2022-12-31"),
     "2023-25": ("2023-01-01", "2025-10-06"),
 }
+# The three cycles that are complete AND fully scored: used for the headline grades.
+FULL_CYCLES = {k: ERAS[k] for k in ("2015-18", "2019-22", "2023-25")}
+CYCLE_TOPS = ["2017-12-16", "2021-11-08", "2025-10-06"]
+CYCLE_BOTTOMS = ["2015-01-14", "2018-12-15", "2022-11-09"]
 
 
 def cycle_pivots(price: pd.Series, start: str = "2011-06-01", level: str = "cycle") -> pd.DataFrame:
@@ -205,4 +209,68 @@ def timing_summary(risk: pd.Series, price: pd.Series, n_days: int = 30) -> dict:
         "peak_worst": float(tops["price_vs_pivot"].min()) if len(tops) else np.nan,
         "trough_timing": float(np.exp(np.log(bots["price_vs_pivot"]).mean())) if len(bots) else np.nan,
         "trough_worst": float(bots["price_vs_pivot"].max()) if len(bots) else np.nan,
+    }
+
+
+def era_table(risk: pd.Series, price: pd.Series, eras: dict | None = None) -> pd.DataFrame:
+    """How well the reading followed the hindsight cycle position, era by era."""
+    ideal = ideal_risk(price)["ideal"]
+    j = pd.concat([risk.rename("risk"), ideal], axis=1).dropna()
+    rows = {}
+    for era, (a, b) in (eras or ERAS).items():
+        e = j.loc[a:b]
+        if len(e) < 200:
+            continue
+        rows[era] = {"days": len(e), "correlation": e["risk"].corr(e["ideal"]),
+                     "rank_correlation": e["risk"].corr(e["ideal"], method="spearman"),
+                     "mean_abs_error": (e["risk"] - e["ideal"]).abs().mean()}
+    return pd.DataFrame(rows).T
+
+
+def best_possible_timing(price: pd.Series, n_days: int = 30) -> pd.DataFrame:
+    """The ceiling for ``extreme_timing``: a perfect indicator would pick the n highest-priced
+    days of each cycle for the top and the n lowest-priced days for the bottom."""
+    return extreme_timing(np.log(price), price, n_days)[["pivot", "kind", "price_vs_pivot"]].rename(
+        columns={"price_vs_pivot": "best_possible"})
+
+
+def scorecard(risk: pd.Series, price: pd.Series, n_days: int = 30) -> dict:
+    """The headline grades, on the three complete cycles since 2015."""
+    out: dict = {}
+    et = era_table(risk, price, FULL_CYCLES)
+    out["tracking"] = float(et["correlation"].mean()) if len(et) else np.nan
+    out["tracking_worst_cycle"] = float(et["correlation"].min()) if len(et) else np.nan
+    out["mean_abs_error"] = float(et["mean_abs_error"].mean()) if len(et) else np.nan
+    tops = pd.Series({d: risk.get(pd.Timestamp(d), np.nan) for d in CYCLE_TOPS})
+    bots = pd.Series({d: risk.get(pd.Timestamp(d), np.nan) for d in CYCLE_BOTTOMS})
+    out["top_reading_mean"], out["top_reading_lowest"] = float(tops.mean()), float(tops.min())
+    out["bottom_reading_mean"], out["bottom_reading_highest"] = float(bots.mean()), float(bots.max())
+    t = extreme_timing(risk, price, n_days)
+    if len(t):
+        t["pivot"] = t["pivot"].astype(str)
+        tt, bb = t[t["pivot"].isin(CYCLE_TOPS)], t[t["pivot"].isin(CYCLE_BOTTOMS)]
+        out["top_timing"] = float(np.exp(np.log(tt["price_vs_pivot"]).mean())) if len(tt) else np.nan
+        out["top_timing_worst"] = float(tt["price_vs_pivot"].min()) if len(tt) else np.nan
+        out["bottom_timing"] = float(np.exp(np.log(bb["price_vs_pivot"]).mean())) if len(bb) else np.nan
+        out["bottom_timing_worst"] = float(bb["price_vs_pivot"].max()) if len(bb) else np.nan
+    valid = risk.dropna()
+    out["latest"] = float(valid.iloc[-1]) if len(valid) else np.nan
+    return out
+
+
+def cycle_test(risk: pd.Series, price: pd.Series, start: str, end: str, top: str, bottom: str,
+               n_days: int = 30) -> dict:
+    """Grades on one unseen stretch [start, end] containing one cycle top and one cycle bottom."""
+    ideal = ideal_risk(price)["ideal"]
+    j = pd.concat([risk.rename("risk"), ideal], axis=1).loc[start:end].dropna()
+    t = extreme_timing(risk, price, n_days)
+    t["pivot"] = t["pivot"].astype(str)
+    tt, bb = t[t["pivot"] == top], t[t["pivot"] == bottom]
+    return {
+        "tracking": j["risk"].corr(j["ideal"]),
+        "mean_abs_error": (j["risk"] - j["ideal"]).abs().mean(),
+        "reading_at_top": risk.get(pd.Timestamp(top), np.nan),
+        "top_timing": float(tt["price_vs_pivot"].iloc[0]) if len(tt) else np.nan,
+        "reading_at_bottom": risk.get(pd.Timestamp(bottom), np.nan),
+        "bottom_timing": float(bb["price_vs_pivot"].iloc[0]) if len(bb) else np.nan,
     }

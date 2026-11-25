@@ -2,19 +2,20 @@
 
 All steps are causal: the score for day t is computed from data up to day t.
 
-Step 1 - band score per indicator
+Step 1 - a ruler per indicator
     For each indicator keep a running record of where its past *lows* and
     *highs* have been (two quantiles of its own history, with older history
-    slowly fading).  Today's score is today's position between those two levels:
-    0 = at the level of past lows, 1 = at the level of past highs.
+    slowly fading).  Today's position is where today's value sits between those
+    two levels: 0 = at the level of past lows, 1 = at the level of past highs.
+    The ruler is read with a delay (``lag``) so it cannot stretch during the
+    very move it is measuring.
 
 Step 2 - composite
-    Weighted average of the available band scores.
+    Average the positions (see ``model.py`` for how indicators are grouped).
 
-Step 3 - stretch
-    Averaging pulls values toward the middle (indicators rarely all peak on the
-    same day), so the composite is re-spread between its own past low and high
-    quantiles, again causally.
+Step 3 - S-curve
+    A smooth squash maps the composite position onto (0, 1) without ever pinning
+    it to the edge, so the most extreme day still gets the most extreme reading.
 """
 from __future__ import annotations
 
@@ -55,18 +56,37 @@ def decayed_quantiles(x: pd.Series, qs: tuple[float, ...], halflife: float | Non
     return pd.DataFrame(out, index=x.index, columns=[f"q{q:g}" for q in qs])
 
 
+def bands(x: pd.Series, lo_q: float = 0.02, hi_q: float = 0.98,
+          halflife: float | None = None, min_obs: int = 365, lag: int = 0) -> pd.DataFrame:
+    """The ruler for ``x``: the level of its past lows (``lo``) and past highs (``hi``), day by day.
+
+    ``lag`` (days) hands today the ruler as it stood ``lag`` days ago.  Without it
+    the ruler stretches while it is being used: during a blow-off the new record
+    values drag the "level of past highs" up with them, so the reading can peak
+    months before price does.
+    """
+    q = decayed_quantiles(x, (lo_q, hi_q), halflife, min_obs)
+    if lag:
+        q = q.shift(lag)
+    q.columns = ["lo", "hi"]
+    return q
+
+
+def position_in(x: pd.Series, band: pd.DataFrame) -> pd.Series:
+    """Where ``x`` sits on its ruler: 0 = level of past lows, 1 = level of past highs (not clipped)."""
+    width = (band["hi"] - band["lo"]).where((band["hi"] - band["lo"]) > 1e-12)
+    return (x - band["lo"]) / width
+
+
 def band_position(x: pd.Series, lo_q: float = 0.02, hi_q: float = 0.98,
-                  halflife: float | None = None, min_obs: int = 365) -> pd.Series:
+                  halflife: float | None = None, min_obs: int = 365, lag: int = 0) -> pd.Series:
     """Position of ``x`` between its own historical low level (0) and high level (1).
 
     Deliberately NOT clipped: a value beyond anything seen before lands above 1
     (or below 0), so the reading keeps moving in a record-breaking run instead of
     sitting pinned at the edge.
     """
-    q = decayed_quantiles(x, (lo_q, hi_q), halflife, min_obs)
-    lo, hi = q.iloc[:, 0], q.iloc[:, 1]
-    width = (hi - lo).where((hi - lo) > 1e-12)
-    return (x - lo) / width
+    return position_in(x, bands(x, lo_q, hi_q, halflife, min_obs, lag))
 
 
 def squash(u: pd.Series | np.ndarray, edge: float = 0.9):
@@ -114,14 +134,14 @@ def ecdf_score(x: pd.Series, halflife: float | None = None, min_obs: int = 365) 
 
 
 def score_table(norm: pd.DataFrame, method: str = "band", lo_q: float = 0.02, hi_q: float = 0.98,
-                halflife: float | None = None, min_obs: int = 365) -> pd.DataFrame:
+                halflife: float | None = None, min_obs: int = 365, lag: int = 0) -> pd.DataFrame:
     """Apply the chosen scoring to every column."""
     out = {}
     for c in norm.columns:
         if method == "band":
             out[c] = band_score(norm[c], lo_q, hi_q, halflife, min_obs)
         elif method == "position":
-            out[c] = band_position(norm[c], lo_q, hi_q, halflife, min_obs)
+            out[c] = band_position(norm[c], lo_q, hi_q, halflife, min_obs, lag)
         elif method == "ecdf":
             out[c] = ecdf_score(norm[c], halflife, min_obs)
         else:
@@ -149,6 +169,6 @@ def stretch(c: pd.Series, lo_q: float = 0.02, hi_q: float = 0.98,
 
 def soft_stretch(c: pd.Series, lo_q: float = 0.02, hi_q: float = 0.98,
                  halflife: float | None = None, min_obs: int = 365,
-                 edge: float = 0.9) -> pd.Series:
+                 edge: float = 0.9, lag: int = 0) -> pd.Series:
     """Re-spread the composite between its own past extremes, then apply the S-curve."""
-    return squash(band_position(c, lo_q, hi_q, halflife, min_obs), edge)
+    return squash(band_position(c, lo_q, hi_q, halflife, min_obs, lag), edge)

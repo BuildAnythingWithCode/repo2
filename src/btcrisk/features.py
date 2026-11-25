@@ -13,7 +13,8 @@ Each indicator declares how it should be put on a common scale (``norm``):
           the Bitcoin of that day", which makes old and new cycles comparable
           without fitting any decay curve.
   "level" Already comparable through time (bounded oscillators, ratios of an
-          activity series to its own average); used as is.
+          activity series to its own average, or a ratio to an all-history
+          anchor that does not sit around zero); used as is.
   "drift" Has a slow structural drift unrelated to the cycle (for example NVT,
           as more activity moves off-chain); measured against its own trailing
           two-year median first.
@@ -110,7 +111,7 @@ def feature(name: str, family: str, norm: str, label: str, desc: str, side: str 
     return deco
 
 
-# ---- family: trend (price against slow anchors) ----------------------------
+# ---- families: trend (price against slow anchors) and range (price inside its own range) ----
 @feature("mayer", "trend", "vol", "Mayer Multiple",
          "Price against its 200-day average.")
 def f_mayer(df):
@@ -147,19 +148,19 @@ def f_powerlaw(df):
     return expanding_powerlaw_residual(df)
 
 
-@feature("dd_ath", "trend", "vol", "Drawdown from all-time high",
+@feature("dd_ath", "range", "vol", "Drawdown from all-time high",
          "How far price sits below its record high.", side="bottom")
 def f_dd(df):
     return df["logp"] - df["logp"].cummax()
 
 
-@feature("runup_low", "trend", "vol", "Run-up from 4-year low",
+@feature("runup_low", "range", "vol", "Run-up from 4-year low",
          "How far price sits above its lowest close of the past four years.", side="top")
 def f_runup(df):
     return df["logp"] - df["logp"].rolling(4 * YEAR, min_periods=YEAR).min()
 
 
-@feature("range_4y", "trend", "level", "Position in 4-year range",
+@feature("range_4y", "range", "level", "Position in 4-year range",
          "Where price sits between its 4-year low and 4-year high (log scale).")
 def f_range4(df):
     lo = df["logp"].rolling(4 * YEAR, min_periods=YEAR).min()
@@ -167,7 +168,7 @@ def f_range4(df):
     return (df["logp"] - lo) / (hi - lo)
 
 
-@feature("range_2y", "trend", "level", "Position in 2-year range",
+@feature("range_2y", "range", "level", "Position in 2-year range",
          "Where price sits between its 2-year low and 2-year high (log scale).")
 def f_range2(df):
     lo = df["logp"].rolling(2 * YEAR, min_periods=YEAR).min()
@@ -275,7 +276,7 @@ def f_rcap_dd(df):
     return log_ratio(df["rcap"], df["rcap"].cummax())
 
 
-@feature("delta_price", "onchain", "vol", "Price / Delta price",
+@feature("delta_price", "onchain", "level", "Price / Delta price",
          "Price against Delta price (realized cap minus the all-time average market cap), a classic floor.",
          side="bottom")
 def f_delta(df):
@@ -284,7 +285,7 @@ def f_delta(df):
     return log_ratio(df["mcap"], delta_cap)
 
 
-@feature("top_price", "onchain", "vol", "Price / Top price",
+@feature("top_price", "trend", "level", "Price / Top price",
          "Price against Top price (35 times the all-time average market cap), a classic ceiling.",
          side="top")
 def f_top(df):
@@ -292,13 +293,13 @@ def f_top(df):
     return log_ratio(df["mcap"], 35 * avg_cap)
 
 
-@feature("thermo", "onchain", "vol", "Thermocap multiple",
+@feature("thermo", "onchain", "level", "Thermocap multiple",
          "Market cap against everything miners have ever been paid.")
 def f_thermo(df):
     return log_ratio(df["mcap"], df["miner_rev_usd"].fillna(0).cumsum())
 
 
-@feature("rcap_thermo", "onchain", "vol", "Realized cap / Thermocap",
+@feature("rcap_thermo", "onchain", "level", "Realized cap / Thermocap",
          "Investor cost basis against cumulative miner income.")
 def f_rcap_thermo(df):
     return log_ratio(df["rcap"], df["miner_rev_usd"].fillna(0).cumsum())
