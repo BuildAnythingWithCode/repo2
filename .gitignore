@@ -11,3 +11,6 @@ out/scratch/
 
 # OS noise
 .DS_Store
+
+# Dashboard data files are rebuilt and uploaded every day; they are not kept in git.
+out/dashboard/

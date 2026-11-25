@@ -1,0 +1,103 @@
+{
+  "data_through": "2026-11-24",
+  "first_score": "2013-01-12",
+  "scorecard": {
+    "tracking": 0.9221,
+    "tracking_worst_cycle": 0.903,
+    "mean_abs_error": 0.0997,
+    "top_reading_mean": 0.8907,
+    "top_reading_lowest": 0.8379,
+    "bottom_reading_mean": 0.0623,
+    "bottom_reading_highest": 0.0688,
+    "top_timing": 0.7935,
+    "top_timing_worst": 0.7528,
+    "bottom_timing": 1.1371,
+    "bottom_timing_worst": 1.3038,
+    "latest": 0.147,
+    "top_timing_best_possible": 0.9026,
+    "bottom_timing_best_possible": 1.1168
+  },
+  "rule_picks": {
+    "2017-12-16": {
+      "trend": [
+        "ma4y",
+        "powerlaw",
+        "top_price",
+        "ma2y"
+      ],
+      "momentum": [
+        "mom_730",
+        "rsi_14m",
+        "mom_365"
+      ],
+      "onchain": [
+        "rcap_growth_1y",
+        "nrpl"
+      ],
+      "network": [
+        "nvt",
+        "metcalfe"
+      ],
+      "range": [
+        "dd_ath",
+        "range_4y"
+      ]
+    },
+    "2021-11-08": {
+      "trend": [
+        "powerlaw",
+        "ma4y",
+        "top_price",
+        "ma2y"
+      ],
+      "momentum": [
+        "mom_365"
+      ],
+      "onchain": [
+        "mvrv"
+      ]
+    },
+    "2025-10-06": {
+      "onchain": [
+        "mvrv"
+      ],
+      "trend": [
+        "powerlaw",
+        "ma2y",
+        "ma4y",
+        "top_price"
+      ],
+      "range": [
+        "dd_ath",
+        "range_2y"
+      ]
+    }
+  },
+  "rule_reproduces_core": true,
+  "robustness_range": {
+    "tracking": [
+      0.877,
+      0.951
+    ],
+    "top_reading_mean": [
+      0.861,
+      0.944
+    ],
+    "bottom_reading_mean": [
+      0.024,
+      0.089
+    ],
+    "top_timing": [
+      0.671,
+      0.817
+    ],
+    "bottom_timing": [
+      1.127,
+      1.162
+    ],
+    "latest": [
+      0.065,
+      0.198
+    ]
+  }
+}

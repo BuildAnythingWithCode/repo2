@@ -217,8 +217,8 @@ def main() -> None:
     rows["Halving clock alone (calendar only)"] = scorecard(res.clock, price)
     try:
         cbbi = load_raw("cbbi", "cbbi")
-        col = "Confidence" if "Confidence" in cbbi.columns else cbbi.columns[-1]
-        rows["CBBI (public index, tuned with hindsight)"] = scorecard(cbbi[col].reindex(price.index), price)
+        # "Confidence" is the CBBI index itself; the other columns are its nine ingredients
+        rows["CBBI (public index, tuned with hindsight)"] = scorecard(cbbi["cbbi_Confidence"].reindex(price.index), price)
     except Exception as exc:                                         # benchmark only; never fatal
         print("CBBI benchmark skipped:", exc)
     base = pd.DataFrame(rows).T
