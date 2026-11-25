@@ -262,9 +262,9 @@ def main() -> None:
     st = pd.read_csv(BACKTEST / "strategy.csv")
     st["id"] = st["rule"] + "_" + st["start"].str[:4]
     st["rule_name"] = st["rule"].map({"linear": "Hold (1 - reading) of the money in bitcoin, rebalanced daily",
-                                      "bands": "All in below 0.2, all out above 0.8, hold in between"})
+                                      "bands": "All in below 0.3, all out above 0.7, a sliding share in between"})
     write("strategy", rows_of(st), "scripts/run_backtest.py: two mechanical rules that follow the reading, against simply "
-          "holding bitcoin. No fees, no taxes, cash earns nothing.")
+          "holding bitcoin. Every trade costs 0.1%, there are no taxes, and cash earns nothing.")
 
     print("latest:", last.date(), "risk", round(r_now, 3), zone(r_now))
 

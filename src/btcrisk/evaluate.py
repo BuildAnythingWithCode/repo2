@@ -131,9 +131,13 @@ def forward_table(risk: pd.Series, price: pd.Series, horizon: int = 365,
 
 def strategy(risk: pd.Series, price: pd.Series, start: str = "2012-01-01",
              kind: str = "linear", fee: float = 0.001) -> dict:
-    """Very simple allocation test: hold (1 - risk) of the portfolio in BTC, rest in cash.
+    """Very simple allocation test, with the rest of the money in cash.
 
-    The position for day t+1 uses the risk known at the close of day t.
+    ``linear``: hold (1 - risk) of the portfolio in BTC.
+    ``bands``:  all in below a reading of 0.3, all out above 0.7, a sliding share in between.
+
+    The position for day t+1 uses the risk known at the close of day t, and every change of
+    position costs ``fee`` (0.1%) of the amount traded.
     """
     r = np.log(price).diff().loc[start:]
     k = risk.reindex(r.index)
