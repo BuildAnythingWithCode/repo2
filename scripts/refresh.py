@@ -49,6 +49,8 @@ def main() -> int:
             rows[name] = json.loads(path.read_text())["rows"]
             if not rows[name]:
                 problems.append(f"{name}.json has no rows")
+            elif len({tuple(r) for r in rows[name]}) != 1:
+                problems.append(f"{name}.json has rows with different columns")
         except Exception as exc:                                    # missing or unreadable file
             problems.append(f"{name}.json: {exc}")
     if not problems:
@@ -66,6 +68,16 @@ def main() -> int:
         print("FAILED the sanity check:\n  - " + "\n  - ".join(problems))
         return 1
 
+    # A short description of exactly what is about to be published, so whoever uploads the files
+    # (a person or an unattended run) can see their contents without opening 900 KB of JSON.
+    print("What the files hold:")
+    for name in FILES:
+        table = rows[name]
+        cols = list(table[0])
+        size = (dest / f"{name}.json").stat().st_size
+        span = f"  {table[0]['date']} to {table[-1]['date']}" if name == "history" else ""
+        print(f"  {name + '.json':<16} {len(table):>5} rows  {size / 1024:>6.0f} KB  {len(cols)} columns: "
+              + ", ".join(cols[:8]) + (", ..." if len(cols) > 8 else "") + span)
     print(f"OK  data through {today['date']}  price ${today['price']:,.0f}  reading {today['risk']:.3f}  zone {today['zone']}")
     print("Files ready in out/dashboard/: " + ", ".join(f"{n}.json" for n in FILES))
     return 0
