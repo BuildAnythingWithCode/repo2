@@ -77,7 +77,7 @@ def summary(risk: pd.Series, price: pd.Series, start: str = "2012-01-01",
     ideal = ideal_risk(price)
     j = pd.concat([risk.rename("risk"), ideal], axis=1).loc[start:].dropna(subset=["risk", "ideal"])
     res: dict = {"n_days": len(j)}
-    res["spearman"] = j["risk"].corr(j["ideal"], method="spearman")
+    res["spearman"] = j["risk"].rank().corr(j["ideal"].rank())      # rank correlation without needing scipy
     res["pearson"] = j["risk"].corr(j["ideal"])
     res["mae"] = (j["risk"] - j["ideal"]).abs().mean()
     for era, (a, b) in ERAS.items():
@@ -226,7 +226,7 @@ def era_table(risk: pd.Series, price: pd.Series, eras: dict | None = None) -> pd
         if len(e) < 200:
             continue
         rows[era] = {"days": len(e), "correlation": e["risk"].corr(e["ideal"]),
-                     "rank_correlation": e["risk"].corr(e["ideal"], method="spearman"),
+                     "rank_correlation": e["risk"].rank().corr(e["ideal"].rank()),
                      "mean_abs_error": (e["risk"] - e["ideal"]).abs().mean()}
     return pd.DataFrame(rows).T
 
