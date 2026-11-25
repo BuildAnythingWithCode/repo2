@@ -42,7 +42,8 @@ def learned_offsets(price: pd.Series, halvings=HALVINGS, next_est=NEXT_HALVING_E
         rows.append({"halving": start, "era_end": end, "top": top.date, "bottom": bot.date,
                      "top_offset": (top.date - start).days, "bottom_offset": (bot.date - start).days,
                      "era_days": (end - start).days})
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=["halving", "era_end", "top", "bottom", "top_offset", "bottom_offset",
+                                       "era_days"])          # named columns even when no era is complete yet
 
 
 def cycle_clock(price: pd.Series, halvings=HALVINGS, next_est=NEXT_HALVING_EST) -> tuple[pd.Series, pd.DataFrame]:
@@ -74,4 +75,5 @@ def cycle_clock(price: pd.Series, halvings=HALVINGS, next_est=NEXT_HALVING_EST) 
         sched.append({"halving": start, "expected_top": start + pd.Timedelta(days=round(to)),
                       "expected_bottom": start + pd.Timedelta(days=round(bo)),
                       "top_offset": round(to), "bottom_offset": round(bo), "eras_used": len(known)})
-    return out, pd.DataFrame(sched)
+    return out, pd.DataFrame(sched, columns=["halving", "expected_top", "expected_bottom", "top_offset",
+                                             "bottom_offset", "eras_used"])
