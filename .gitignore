@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Raw downloads are re-fetched on every run; only compact outputs are committed.
+data/raw/
+data/processed/
+out/scratch/
+
+# OS noise
+.DS_Store
+
+# Dashboard data files are rebuilt and uploaded every day; they are not kept in git.
+out/dashboard/
