@@ -7,6 +7,8 @@ One number per day, from 0 to 1, that says where bitcoin sits in its market cycl
 
 Think of it as a thermometer for the market. It tells you how hot or cold things are against bitcoin's own history. It does not tell you what tomorrow brings, and none of this is financial advice.
 
+**See today's reading on the [live dashboard](https://buildanythingwithcode.github.io/repo2/).** It rebuilds itself every day.
+
 **Snapshot, data through 24 November 2026:** the reading is **0.15**, in the Very low zone, with bitcoin at $59,791.
 
 ## How it did
@@ -81,7 +83,10 @@ They were chosen by one rule, not by hand: keep every indicator whose own readin
 | `scripts/export_dashboard.py` | Step 3: write the dashboard's data files |
 | `scripts/pack_dashboard.py` | Step 4: wrap the dashboard's page files |
 | `scripts/check_no_peeking.py` | Proves that no reading depends on later data |
+| `scripts/build_site.py` | Builds the public website from the dashboard page, the write-up and the day's data files |
 | `dashboard/` | The dashboard page: HTML, CSS and JavaScript |
+| `site/` | What the website adds around the dashboard page: its colours, a small data loader, the page frame and the charting library |
+| `.github/workflows/website.yml` | The daily GitHub Actions job that rebuilds and publishes the website |
 | `out/backtest/` | The backtest's result tables, kept here so you can read them without running anything |
 
 The three files at the top level (`index.html`, `script.js` and `style.css`) were in this repository before the metric and are not part of it.
@@ -97,8 +102,17 @@ The three files at the top level (`index.html`, `script.js` and `style.css`) wer
 | [DefiLlama](https://stablecoins.llama.fi/stablecoincharts/all) | Stablecoin supply |
 | [CBBI](https://colintalkscrypto.com/cbbi/) | A public index used as a benchmark to compare against. It is never an input. |
 
-## The dashboard and the daily refresh
+## The website and the daily refresh
 
-A [live dashboard](https://claude.ai/artifact/QUg3TC853LDcuCjmDA5R6Z) shows today's reading, bitcoin's price history coloured by risk, and what every indicator says. It is a private page, so the link opens only for people its owner has shared it with.
+The [live dashboard](https://buildanythingwithcode.github.io/repo2/) shows today's reading, bitcoin's price history coloured by risk, and what every indicator says. The [write-up](https://buildanythingwithcode.github.io/repo2/how-it-works.html) sits beside it.
 
-The dashboard rebuilds itself every day at 04:32 UTC. A scheduled task takes a fresh copy of this repository, runs `python3 -I scripts/refresh.py`, and swaps in the new data files only if every check passes. If anything fails, the dashboard keeps the previous day's numbers.
+The site rebuilds itself every day at about 05:17 UTC, with a second try twelve hours later. A GitHub Actions job ([`.github/workflows/website.yml`](.github/workflows/website.yml)) takes a fresh copy of this repository, runs `python3 -I scripts/refresh.py` and then `python3 -I scripts/build_site.py`, and publishes the result to the `gh-pages` branch, which GitHub Pages serves. If any step fails, nothing is published and the site keeps the previous day's numbers.
+
+To build the site on your own machine:
+
+```bash
+pip install -r requirements.txt -r requirements-site.txt
+python3 -I scripts/refresh.py
+python3 -I scripts/build_site.py
+python3 -m http.server -d _site          # then open http://localhost:8000
+```

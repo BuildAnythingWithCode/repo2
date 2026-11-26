@@ -14,3 +14,6 @@ out/scratch/
 
 # Dashboard data files are rebuilt and uploaded every day; they are not kept in git.
 out/dashboard/
+
+# The website is rebuilt from the data every day; it is not kept in git.
+_site/
