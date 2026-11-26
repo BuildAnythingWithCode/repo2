@@ -2,7 +2,8 @@
    Colours come from the dashboard's own tokens, so light and dark both work. */
 
 .brm {
-  /* five risk zones: blue = low, grey = neutral, red = high */
+  /* five risk zones: blue = low, grey = neutral, red = high, with the deepest blue and the
+     deepest red at the two ends. Dark mode needs its shades swapped for that (see below). */
   --z0: var(--cds-chart-diverging-1, #2a78d6);
   --z1: var(--cds-chart-diverging-2, #6aabf1);
   --z2: var(--cds-chart-muted, #898781);
@@ -20,6 +21,30 @@
   color: var(--color-fg);
 }
 .brm > * { min-width: 0; }
+
+/* Dark mode. The dark palette is palest at its two ends, so the inner and outer shades trade
+   places: the deepest blue marks Very low and the deepest red Very high, as in light mode.
+   These selectors are the ones that switch the dashboard's own colours to dark: Claude's dark
+   setting, or no setting with the device in dark mode. The website marks its page the same way. */
+@media screen {
+  [data-mode=dark] .cds-root:not([data-mode=light]):not([data-mode=system]) .brm,
+  .cds-root[data-mode=dark] .brm {
+    --z0: var(--cds-chart-diverging-2, #2a78d6);
+    --z1: var(--cds-chart-diverging-1, #6aabf1);
+    --z3: var(--cds-chart-diverging-7, #ec7e7e);
+    --z4: var(--cds-chart-diverging-6, #dc3c3d);
+  }
+}
+@media screen and (prefers-color-scheme: dark) {
+  [data-mode=system] .cds-root:not([data-mode=light]):not([data-mode=dark]) .brm,
+  .cds-root[data-mode=system] .brm,
+  .cds-root:not([data-mode]):not([data-mode] *) .brm {
+    --z0: var(--cds-chart-diverging-2, #2a78d6);
+    --z1: var(--cds-chart-diverging-1, #6aabf1);
+    --z3: var(--cds-chart-diverging-7, #ec7e7e);
+    --z4: var(--cds-chart-diverging-6, #dc3c3d);
+  }
+}
 
 /* ---- text ---- */
 .brm-title {
