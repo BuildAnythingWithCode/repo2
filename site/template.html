@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-v="{{version}}">
+<head>
+<meta charset="utf-8">{{base}}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0b0b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bitcoin Risk Metric">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{description}}">
+<meta property="og:url" content="{{url}}">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="{{url}}">
+<link rel="icon" type="image/svg+xml" href="{{asset:favicon.svg}}">
+<link rel="stylesheet" href="{{asset:theme.css}}">
+{{head}}
+</head>
+<body>
+<a class="site-skip" href="#main">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="./"><img src="{{asset:favicon.svg}}" alt="" width="22" height="22">Bitcoin Risk Metric</a>
+    <nav class="site-links" aria-label="Site">
+      <a href="./"{{current:dashboard}}>Dashboard</a>
+      <a href="how-it-works.html"{{current:how}}>How it works</a>
+      <a href="https://github.com/BuildAnythingWithCode/repo2">Code on GitHub</a>
+    </nav>
+  </div>
+</header>
+<main id="main" class="site-main">
+{{content}}
+</main>
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <p>Rebuilt every day from free public data. The reading describes where bitcoin sits against its own history. It is not a forecast and not financial advice. Code and method: <a href="https://github.com/BuildAnythingWithCode/repo2">BuildAnythingWithCode/repo2</a>.</p>
+  </div>
+</footer>
+{{scripts}}
+</body>
+</html>

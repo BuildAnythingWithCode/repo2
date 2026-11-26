@@ -1,10 +1,10 @@
 # Bitcoin Risk Metric: how it works and how it did
 
-*This is a snapshot. Every figure comes from the backtest run on 25 November 2026, on data through 24 November 2026. To rebuild all of it on today's data, run `python3 -I scripts/refresh.py`.*
+*This is a snapshot. Every figure comes from the backtest run on 25 November 2026, on data through 24 November 2026. The [live dashboard](https://buildanythingwithcode.github.io/repo2/) always shows today's numbers, and `python3 -I scripts/refresh.py` rebuilds all of this on today's data.*
 
 ## The short version
 
-Bitcoin's risk reading is 0.15 out of 1, in the Very low zone, on data through 24 November 2026 when bitcoin closed at $59,791. The [live dashboard](https://claude.ai/artifact/QUg3TC853LDcuCjmDA5R6Z) shows the current number and refreshes itself every day. It is a private page, so the link opens only for people its owner has shared it with.
+Bitcoin's risk reading is 0.15 out of 1, in the Very low zone, on data through 24 November 2026 when bitcoin closed at $59,791. The [live dashboard](https://buildanythingwithcode.github.io/repo2/) shows the current number and rebuilds itself every day.
 
 The metric is one number per day. A reading of 0 means bitcoin looks the way it looked at past cycle lows, and 1 means it looks the way it looked at past cycle highs. Think of it as a thermometer for the market: it tells you how hot or cold things are against bitcoin's own history. It does not tell you what tomorrow brings.
 
@@ -245,14 +245,14 @@ Holding won by a mile over the long run, because the rule sells early in bull ma
 
 ## How it stays current
 
-The dashboard rebuilds itself every day at 04:32 UTC, which is 12:32 PM in UTC+8, with nobody involved. Bitcoin's trading day closes at midnight UTC, and the run waits a few hours for the data sites to publish the finished day.
+The [website](https://buildanythingwithcode.github.io/repo2/) rebuilds itself every day at about 05:17 UTC, which is 1:17 PM in UTC+8, with nobody involved, and tries again twelve hours later. Bitcoin's trading day closes at midnight UTC, and the run waits a few hours for the data sites to publish the finished day.
 
-1. A scheduled task called "Refresh Bitcoin risk dashboard" starts and fetches the latest code.
+1. A scheduled GitHub Actions job starts and fetches the latest code.
 2. It downloads the whole history again from the free sources. Nothing is cached, so a corrected figure upstream is picked up automatically.
 3. It re-runs the model and the entire backtest, then checks the result: a fresh date, a reading between 0 and 1, every file present.
-4. It swaps the ten data files behind the dashboard and posts a one-line note with the day's reading.
+4. It rebuilds the website around the ten new data files and publishes it.
 
-The whole run takes about three minutes. If any step fails, nothing is swapped: the dashboard keeps the previous day's numbers, and flags them as stale once they are more than two days old.
+The whole run takes a few minutes. If any step fails, nothing is published: the website keeps the previous day's numbers, and says so once they are more than two days old.
 
 **Where the data comes from.** All of it is free and needs no account.
 
@@ -265,11 +265,9 @@ The whole run takes about three minutes. If any step fails, nothing is swapped: 
 | [DefiLlama](https://stablecoins.llama.fi/stablecoincharts/all) | Stablecoin supply |
 | [CBBI](https://colintalkscrypto.com/cbbi/) | A benchmark to compare against. It is never an input. |
 
-**Where the code lives.** Everything is in this repository, and the [README](README.md) says what each file does. It is about 2,300 lines of Python and needs only three common packages.
+**Where the code lives.** Everything is in the GitHub repository [BuildAnythingWithCode/repo2](https://github.com/BuildAnythingWithCode/repo2), and its [README](README.md) says what each file does. It is about 2,300 lines of Python and needs only three common packages.
 
 - `python3 -I scripts/refresh.py` rebuilds everything from scratch in about two minutes.
 - `python3 -I scripts/check_no_peeking.py` re-runs the proof that no reading uses later data.
 
-Every table on the dashboard carries its own receipt: open Sources there to see the rows and the code behind any number.
-
-**One piece of housekeeping.** Each daily run adds ten small files to the dashboard's storage and leaves the old ones in place. There is room for about 16 months of runs before the old copies need clearing out.
+Every number on the dashboard comes from ten data files published beside it, such as [today.json](https://buildanythingwithcode.github.io/repo2/data/today.json) and [history.json](https://buildanythingwithcode.github.io/repo2/data/history.json), so anyone can check them.
