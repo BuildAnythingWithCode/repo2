@@ -3,7 +3,10 @@
    The dashboard's page code (dashboard/style.css and app.js) was written for Claude's dashboard,
    which supplies a set of colour and size tokens. This file supplies the same tokens with plain
    values, in a light and a dark version, plus the few things a stand-alone page needs: the top
-   bar, the footer and the typography of the write-up page. */
+   bar, the footer and the typography of the write-up page.
+
+   Like the page Claude draws the dashboard in, <html> carries class="cds-root" (see
+   template.html), so the dashboard's own dark-mode rules in dashboard/style.css apply here too. */
 
 :root {
   color-scheme: light dark;
