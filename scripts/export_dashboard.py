@@ -42,7 +42,7 @@ DEST = OUT / "dashboard"
 BACKTEST = OUT / "backtest"
 SOURCES = ("Coin Metrics community API (price, market cap, MVRV, supply, issuance), Blockchain.com charts, "
            "Coinbase Exchange candles, alternative.me Fear & Greed, DefiLlama stablecoins. All free and public.")
-REPO = "github.com/BuildAnythingWithCode/repo2 (branch bitcoin-risk-metric)"
+REPO = "github.com/BuildAnythingWithCode/repo2"
 
 
 def natural(name: str, x: float) -> str:
