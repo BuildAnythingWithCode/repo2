@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en" class="cds-root" data-v="202611281417">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it works: Bitcoin Risk Metric</title>
+<meta name="description" content="How the Bitcoin Risk Metric is built, how it was tested over bitcoin&#x27;s whole history, and where it falls short.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0b0b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bitcoin Risk Metric">
+<meta property="og:title" content="How it works: Bitcoin Risk Metric">
+<meta property="og:description" content="How the Bitcoin Risk Metric is built, how it was tested over bitcoin&#x27;s whole history, and where it falls short.">
+<meta property="og:url" content="https://buildanythingwithcode.github.io/repo2/how-it-works.html">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://buildanythingwithcode.github.io/repo2/how-it-works.html">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=f50961d3b9">
+<link rel="stylesheet" href="theme.css?v=285fd4b9c5">
+
+</head>
+<body>
+<a class="site-skip" href="#main">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="./"><img src="favicon.svg?v=f50961d3b9" alt="" width="22" height="22">Bitcoin Risk Metric</a>
+    <nav class="site-links" aria-label="Site">
+      <a href="./">Dashboard</a>
+      <a href="how-it-works.html" aria-current="page">How it works</a>
+      <a href="https://github.com/BuildAnythingWithCode/repo2">Code on GitHub</a>
+    </nav>
+  </div>
+</header>
+<main id="main" class="site-main">
+<article class="doc doc-layout">
+<header class="doc-head">
+<h1 id="bitcoin-risk-metric-how-it-works-and-how-it-did">Bitcoin Risk Metric: how it works and how it did</h1>
+<p><em>This is a snapshot. Every figure comes from the backtest run on 25 November 2026, on data through 24 November 2026. The <a href="./">live dashboard</a> always shows today's numbers, and <code>python3 -I scripts/refresh.py</code> rebuilds all of this on today's data.</em></p>
+</header>
+<nav class="doc-toc" aria-label="On this page"><p class="doc-toc-h">On this page</p><ol><li><a href="#the-short-version">The short version</a></li><li><a href="#how-to-read-the-number">How to read the number</a></li><li><a href="#how-the-score-is-built">How the score is built</a></li><li><a href="#what-goes-into-it">What goes into it</a></li><li><a href="#how-it-was-tested">How it was tested</a></li><li><a href="#results">Results</a></li><li><a href="#the-blind-test">The blind test</a></li><li><a href="#how-it-compares-with-other-gauges">How it compares with other gauges</a></li><li><a href="#what-it-cannot-do">What it cannot do</a></li><li><a href="#how-it-stays-current">How it stays current</a></li></ol></nav>
+<div class="doc-body">
+<h2 id="the-short-version">The short version</h2>
+<p>Bitcoin's risk reading is 0.15 out of 1, in the Very low zone, on data through 24 November 2026 when bitcoin closed at $59,791. The <a href="./">live dashboard</a> shows the current number and rebuilds itself every day.</p>
+<p>The metric is one number per day. A reading of 0 means bitcoin looks the way it looked at past cycle lows, and 1 means it looks the way it looked at past cycle highs. Think of it as a thermometer for the market: it tells you how hot or cold things are against bitcoin's own history. It does not tell you what tomorrow brings.</p>
+<p>It was graded on the three complete cycles it could score from start to finish:</p>
+<ul>
+<li><strong>Tops.</strong> It read 0.98, 0.84 and 0.85 on the 2017, 2021 and 2025 highs. A perfect gauge would read 1.</li>
+<li><strong>Bottoms.</strong> It read 0.05, 0.07 and 0.06 on the 2015, 2018 and 2022 lows. A perfect gauge would read 0.</li>
+<li><strong>Everything in between.</strong> Day by day, it followed where price really sat inside each cycle with a correlation of 0.92, where 1.00 is a perfect match.</li>
+</ul>
+<p>Three things to know before leaning on it:</p>
+<ul>
+<li><strong>It marks seasons, not days.</strong> The Very high zone first lit up 11 to 19 months before each of the last three tops.</li>
+<li><strong>Three cycles is three data points.</strong> The recipe fits them well and can still be fooled by the fourth.</li>
+<li><strong>Today's number is soft.</strong> Nudging the design choices moves today's reading anywhere between 0.07 and 0.20. Low either way, but not a hard fact.</li>
+</ul>
+<h2 id="how-to-read-the-number">How to read the number</h2>
+<p>The scale is cut into five zones, and history has treated them very differently. The table groups every scored day since January 2013 by its reading and shows what price did over the following 12 months.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Zone</th>
+<th>Reading</th>
+<th>Days spent there</th>
+<th>Typical change, next 12 months</th>
+<th>Higher a year later</th>
+<th>Typical worst dip on the way</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nw">Very low</td>
+<td class="nw">0.0 to 0.2</td>
+<td class="nw">799</td>
+<td class="nw">+98%</td>
+<td class="nw">100% of days</td>
+<td class="nw">−10%</td>
+</tr>
+<tr>
+<td class="nw">Low</td>
+<td class="nw">0.2 to 0.4</td>
+<td class="nw">820</td>
+<td class="nw">+110%</td>
+<td class="nw">85%</td>
+<td class="nw">−18%</td>
+</tr>
+<tr>
+<td class="nw">Neutral</td>
+<td class="nw">0.4 to 0.6</td>
+<td class="nw">844</td>
+<td class="nw">+60%</td>
+<td class="nw">67%</td>
+<td class="nw">−44%</td>
+</tr>
+<tr>
+<td class="nw">High</td>
+<td class="nw">0.6 to 0.8</td>
+<td class="nw">1,201</td>
+<td class="nw">+71%</td>
+<td class="nw">58%</td>
+<td class="nw">−21%</td>
+</tr>
+<tr>
+<td class="nw">Very high</td>
+<td class="nw">0.8 to 1.0</td>
+<td class="nw">1,036</td>
+<td class="nw">−10%</td>
+<td class="nw">44%</td>
+<td class="nw">−28%</td>
+</tr>
+</tbody>
+</table></div>
+<p>"Typical" means the median, the middle outcome of all the days in that zone.</p>
+<p>The two ends are where the number earns its keep. Every one of the 799 days below 0.2 was followed by a higher price a year later, and the typical day above 0.8 was followed by a loss.</p>
+<p>Read the pattern, not the decimals. These 4,700 days come from only a handful of cycles, so they are nowhere near 4,700 independent tests. It is like judging a restaurant from thousands of bites taken during four visits.</p>
+<p>The zones are seasons, not alarms. The reading has sat above 0.8 on about one scored day in five, because bitcoin's bull markets are long and its top zone switches on early. Very high means "this is what late in a cycle has looked like", not "sell today".</p>
+<h2 id="how-the-score-is-built">How the score is built</h2>
+<p>The score is made in five steps, and every step uses only the data that existed on the day being scored. That one rule is what makes the backtest honest: the reading for a day in 2017 never saw 2018.</p>
+<ol>
+<li><strong>Collect.</strong> Free public data is downloaded fresh every day: price, market value, what holders paid for their coins, mining and network activity.</li>
+<li><strong>Measure.</strong> The data is turned into indicators, such as price against its 4-year average. Distances are counted in bitcoin's own typical swings, not raw percent. A 50% jump was an ordinary month in 2013 and is a big event now, the way a wave is judged by how rough that sea usually is.</li>
+<li><strong>Give each indicator its own ruler.</strong> The level of its past lows is marked 0 and the level of its past highs is marked 1, like pencil marks on a door frame. Old marks fade slowly, so recent cycles count more.</li>
+<li><strong>Blend.</strong> Indicators that ask the same question are averaged into a lens. The three lenses are then averaged, each with an equal vote.</li>
+<li><strong>Smooth the ends.</strong> A gentle S-curve lets the result approach 0 and 1 without ever sticking to them. The most extreme day in history still gets the most extreme reading.</li>
+</ol>
+<p>Two details in step 3 matter more than they look.</p>
+<p>The ruler is read with a one-year delay. During a blow-off, an indicator makes new highs every week, and a ruler that updated instantly would stretch along with it. Reading last year's ruler is like not letting the runner move the finish line mid-race.</p>
+<p>The ends of the ruler are not the single highest and lowest values ever seen. They are the levels the indicator stayed inside 96% of the time, with older history fading at a half-life of eight years. One freak day cannot bend the scale.</p>
+<h2 id="what-goes-into-it">What goes into it</h2>
+<p>Seven indicators make the score, chosen from 49 that were built and tested. They sit in three lenses so that four similar trend gauges cannot outvote the one on-chain gauge.</p>
+<pre><code>                             ┌── Price / 4-year average
+                             ├── Price / 2-year average
+           ┌── Trend ────────┤
+           │   one third     ├── Power-law trend deviation
+           │                 └── Price / Top price
+           │
+Reading ───┼── On-chain ─────── MVRV
+0 to 1     │   one third
+           │
+           │                 ┌── Drawdown from record high
+           └── Range ────────┤
+               one third     └── Position in 2-year range
+</code></pre>
+<p>Read it from right to left: seven indicators are averaged into three lenses, and the three lenses into one reading.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Lens</th>
+<th>Indicator</th>
+<th>The question it asks</th>
+<th>On 24 Nov 2026</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nw">Trend</td>
+<td class="nw">Price / 4-year average</td>
+<td>How far is price from its own 4-year average?</td>
+<td class="nw">0.90x its average</td>
+</tr>
+<tr>
+<td class="nw">Trend</td>
+<td class="nw">Price / 2-year average</td>
+<td>The same question over 2 years.</td>
+<td class="nw">0.67x its average</td>
+</tr>
+<tr>
+<td class="nw">Trend</td>
+<td>Power-law trend deviation</td>
+<td>How far is price from a long-run growth curve, refitted every day on past data only?</td>
+<td class="nw">−59% vs. trend</td>
+</tr>
+<tr>
+<td class="nw">Trend</td>
+<td class="nw">Price / Top price</td>
+<td>How close is price to a classic ceiling, 35 times its all-time average market value?</td>
+<td class="nw">8% of Top price</td>
+</tr>
+<tr>
+<td class="nw">On-chain</td>
+<td class="nw">MVRV</td>
+<td>How far is price above the average price at which every coin last moved?</td>
+<td class="nw">1.13</td>
+</tr>
+<tr>
+<td class="nw">Range</td>
+<td>Drawdown from record high</td>
+<td>How far has price fallen from its record high?</td>
+<td class="nw">−52%</td>
+</tr>
+<tr>
+<td class="nw">Range</td>
+<td>Position in 2-year range</td>
+<td>Where does price sit between its 2-year low and high?</td>
+<td class="nw">3% of the way up</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How the seven were chosen.</strong> Not by hand. One rule did it: keep every indicator whose own reading followed past cycles with a correlation of at least 0.75. Seven passed, and the blind test further down re-runs that same rule on older data.</p>
+<p><strong>What was watched but left out.</strong> Another 38 indicators run every day and appear on the dashboard as grey dots: momentum, miners, network activity and sentiment. They followed the cycles less faithfully. The Puell Multiple scored 0.58, the Mayer Multiple 0.54, Fear &amp; Greed 0.50 and NVT 0.20.</p>
+<p><strong>What was left out on purpose.</strong> Four were excluded before any testing. Two compare price with everything miners have ever earned, a yardstick that grows more slowly after each halving, so the ratio drifts upward for reasons unrelated to the cycle. Two are pure calendar counts.</p>
+<p><strong>The halving clock.</strong> The four-year halving calendar gets its own dial beside the score, not a seat inside it. Adding the calendar was tested and did not make the score better. On 24 November 2026 the clock read 0.02: by the timing of past cycles a low was due around late August 2026, and the next high around August 2029.</p>
+<h2 id="how-it-was-tested">How it was tested</h2>
+<p>The backtest asks one question of all 5,065 days since 12 January 2013: what would the metric have said that day, knowing only what was knowable then? Scores start in 2013 because the rulers need about two years of bitcoin's price history, which begins in July 2010, before they mean anything.</p>
+<p><strong>The answer key.</strong> Turning points were marked afterwards by a mechanical rule on price, not by eye. A fall of 70% or a rise of 233% marks a cycle turn, and a fall of 50% or a rise of 100% marks a smaller mid-cycle turn. Every day between two turns then gets a hindsight value: 0 at the bottom, 1 at the top, and in between according to where price stood on the way. The answer key is there for grading. No reading is ever calculated from it.</p>
+<p><strong>The four grades.</strong></p>
+<ol>
+<li><strong>Tops and bottoms.</strong> Did it read near 1 on the real tops and near 0 on the real bottoms?</li>
+<li><strong>Tracking.</strong> Day by day, how closely did the reading follow the hindsight value? This is a correlation, where 1.00 is a perfect match.</li>
+<li><strong>Timing.</strong> On the 30 most extreme readings of each cycle, how close was price to the actual turn?</li>
+<li><strong>Aftermath.</strong> Did high readings come before poor returns, and low readings before good ones?</li>
+</ol>
+<p><strong>Which cycles count.</strong> The headline grades use the three cycles the metric scored from start to finish: 2015 to 2018, 2019 to 2022, and 2023 to the October 2025 high. The years 2013 and 2014 are reported separately, because the rulers were still young.</p>
+<p><strong>Proof of no peeking.</strong> The data was cut off at eight past dates and the whole model re-run each time. Every earlier reading came out identical to 14 decimal places, so no reading depends on anything that happened after it. Anyone can repeat this with one command in the code.</p>
+<p><strong>Where hindsight did get in.</strong> Once, in choosing which indicators to trust. The rule that picked the seven compared every indicator with the answer key over the whole history up to the October 2025 high. The blind test below measures how much that flatters the results.</p>
+<h2 id="results">Results</h2>
+<p>On the three complete cycles the metric read 0.84 or higher on every top and 0.07 or lower on every bottom.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Turning point</th>
+<th>Date</th>
+<th>Size</th>
+<th>Price</th>
+<th>Reading</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nw">Bottom</td>
+<td class="nw">6 July 2013</td>
+<td class="nw">Cycle turn</td>
+<td class="nw">$66</td>
+<td class="nw">0.40</td>
+</tr>
+<tr>
+<td class="nw">Top</td>
+<td class="nw">4 December 2013</td>
+<td class="nw">Cycle turn</td>
+<td class="nw">$1,135</td>
+<td class="nw">0.98</td>
+</tr>
+<tr>
+<td class="nw">Bottom</td>
+<td class="nw">14 January 2015</td>
+<td class="nw">Cycle turn</td>
+<td class="nw">$176</td>
+<td class="nw">0.05</td>
+</tr>
+<tr>
+<td class="nw">Top</td>
+<td class="nw">16 December 2017</td>
+<td class="nw">Cycle turn</td>
+<td class="nw">$19,641</td>
+<td class="nw">0.98</td>
+</tr>
+<tr>
+<td class="nw">Bottom</td>
+<td class="nw">15 December 2018</td>
+<td class="nw">Cycle turn</td>
+<td class="nw">$3,185</td>
+<td class="nw">0.07</td>
+</tr>
+<tr>
+<td class="nw">Top</td>
+<td class="nw">26 June 2019</td>
+<td class="nw">Mid-cycle turn</td>
+<td class="nw">$12,863</td>
+<td class="nw">0.70</td>
+</tr>
+<tr>
+<td class="nw">Bottom</td>
+<td class="nw">12 March 2020</td>
+<td class="nw">Mid-cycle turn</td>
+<td class="nw">$4,959</td>
+<td class="nw">0.14</td>
+</tr>
+<tr>
+<td class="nw">Top</td>
+<td class="nw">13 April 2021</td>
+<td class="nw">Mid-cycle turn</td>
+<td class="nw">$63,446</td>
+<td class="nw">0.88</td>
+</tr>
+<tr>
+<td class="nw">Bottom</td>
+<td class="nw">20 July 2021</td>
+<td class="nw">Mid-cycle turn</td>
+<td class="nw">$29,767</td>
+<td class="nw">0.50</td>
+</tr>
+<tr>
+<td class="nw">Top</td>
+<td class="nw">8 November 2021</td>
+<td class="nw">Cycle turn</td>
+<td class="nw">$67,542</td>
+<td class="nw">0.84</td>
+</tr>
+<tr>
+<td class="nw">Bottom</td>
+<td class="nw">9 November 2022</td>
+<td class="nw">Cycle turn</td>
+<td class="nw">$15,758</td>
+<td class="nw">0.06</td>
+</tr>
+<tr>
+<td class="nw">Top</td>
+<td class="nw">6 October 2025</td>
+<td class="nw">Cycle turn</td>
+<td class="nw">$124,824</td>
+<td class="nw">0.85</td>
+</tr>
+</tbody>
+</table></div>
+<p>Every turning point since the middle of 2013, with the reading the metric gave on that day. A perfect gauge would read 1.00 on every top and 0.00 on every bottom.</p>
+<p><strong>The misses are honest.</strong> The July 2013 low read 0.40. The metric was six months old, and that low was a 70% crash in the middle of a bull run, not the end of a bear market. Mid-cycle turns sit nearer the middle by design: a 50% dip inside a bull market is not a cycle low, and the reading does not pretend it is.</p>
+<p><strong>Tops are getting quieter.</strong> The 2013 and 2017 highs read 0.98, and the 2021 and 2025 highs about 0.85. Each cycle has been tamer than the one before, and a ruler built from the past always runs a little behind that.</p>
+<p><strong>Tracking, period by period.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Period</th>
+<th>Match with the hindsight value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nw">2013 to 2014</td>
+<td class="nw">0.36</td>
+</tr>
+<tr>
+<td class="nw">2015 to 2018</td>
+<td class="nw">0.90</td>
+</tr>
+<tr>
+<td class="nw">2019 to 2022</td>
+<td class="nw">0.91</td>
+</tr>
+<tr>
+<td class="nw">2023 to October 2025</td>
+<td class="nw">0.95</td>
+</tr>
+</tbody>
+</table></div>
+<p>Over the three complete cycles the match averages 0.92, and the typical gap between the reading and the hindsight value is 0.10. The weak first row is the young-ruler period.</p>
+<p><strong>Timing.</strong> At bottoms the metric was about as good as a gauge can be. On its 30 lowest readings of each cycle, price averaged 14% above the eventual low, and a perfect gauge would have managed 12%.</p>
+<p>At tops it was early. On its 30 highest readings of each cycle, price averaged 79% of the eventual high, against 90% for a perfect gauge. In 2021 and 2025 the peak readings came 8 to 10 months before the final high.</p>
+<h2 id="the-blind-test">The blind test</h2>
+<p>Built blind, the metric read 0.76 and 0.77 on the last two cycle tops, against 0.84 and 0.85 for the final recipe. That gap of about 0.08 is the best single estimate of how much hindsight flatters the headline numbers.</p>
+<p>The final recipe has an unfair advantage: its seven indicators were chosen by someone who had already seen every cycle. It is like a student who sat the exam after seeing the paper. So the selection rule was re-run the honest way, twice, each time with only the data that existed before the cycle it was graded on.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Graded on</th>
+<th>How the recipe was made</th>
+<th>Reading at the top</th>
+<th>Reading at the bottom</th>
+<th>Match with the hindsight value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nw">2018 to 2021</td>
+<td>Blind: rule run on data up to the December 2017 top, which picked 13 indicators</td>
+<td class="nw">0.76</td>
+<td class="nw">0.17</td>
+<td class="nw">0.86</td>
+</tr>
+<tr>
+<td class="nw">2018 to 2021</td>
+<td>Blind: all 45 indicators averaged, no choosing</td>
+<td class="nw">0.61</td>
+<td class="nw">0.11</td>
+<td class="nw">0.86</td>
+</tr>
+<tr>
+<td class="nw">2018 to 2021</td>
+<td>Not blind: the final recipe</td>
+<td class="nw">0.84</td>
+<td class="nw">0.07</td>
+<td class="nw">0.90</td>
+</tr>
+<tr>
+<td class="nw">2022 to 2025</td>
+<td>Blind: rule run on data up to the November 2021 top, which picked 6 indicators</td>
+<td class="nw">0.77</td>
+<td class="nw">0.07</td>
+<td class="nw">0.93</td>
+</tr>
+<tr>
+<td class="nw">2022 to 2025</td>
+<td>Blind: all 45 indicators averaged, no choosing</td>
+<td class="nw">0.58</td>
+<td class="nw">0.14</td>
+<td class="nw">0.79</td>
+</tr>
+<tr>
+<td class="nw">2022 to 2025</td>
+<td>Not blind: the final recipe</td>
+<td class="nw">0.85</td>
+<td class="nw">0.07</td>
+<td class="nw">0.96</td>
+</tr>
+</tbody>
+</table></div>
+<p>Three things follow.</p>
+<ul>
+<li><strong>Expect the next top to read around 0.7 to 0.8, not 1.</strong> The blind rows are the fair forecast of how the metric behaves on a cycle it has not seen.</li>
+<li><strong>Bottoms survived the blind test better than tops.</strong> Both blind lows landed inside the Very low zone.</li>
+<li><strong>Choosing indicators is what makes the gauge work.</strong> Averaging everything reads about 0.6 at a top, because dozens of weak indicators water down the few good ones.</li>
+</ul>
+<p>One reassurance: run on the full history, the rule picks exactly the seven indicators in the final recipe. Nothing was added by hand, and the only things dropped by hand are the four exclusions described earlier.</p>
+<p>Two caveats on the blind test itself.</p>
+<ul>
+<li><strong>The bar was set with hindsight.</strong> The 0.75 cut-off in the rule is itself a choice made after seeing every cycle. A looser bar of 0.70 gave nearly the same blind readings at the two tops, 0.76 and 0.78. A stricter bar of 0.80 kept only 8 and then 3 indicators and did worse: 0.71 and 0.65 at the tops, and 0.23 at the 2018 low.</li>
+<li><strong>A top is only known afterwards.</strong> The rule used data up to each top, yet nobody could have run it until bitcoin had halved from that high, in February 2018 and May 2022. Both graded bottoms and both graded tops came after those dates, so the readings in the table are blind in the strict sense.</li>
+</ul>
+<h2 id="how-it-compares-with-other-gauges">How it compares with other gauges</h2>
+<p>CBBI, the best-known public index of this kind, grades slightly better than this metric on every measure and reads 0.31 today against 0.15. Every gauge below was put on the same kind of 0 to 1 ruler and graded the same way on the same three cycles.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Gauge</th>
+<th>Match with the hindsight value</th>
+<th>Average at cycle tops</th>
+<th>Average at cycle bottoms</th>
+<th>On 24 Nov 2026</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nw"><strong>Bitcoin Risk Metric</strong></td>
+<td class="nw">0.92</td>
+<td class="nw">0.89</td>
+<td class="nw">0.06</td>
+<td class="nw">0.15</td>
+</tr>
+<tr>
+<td class="nw"><a href="https://colintalkscrypto.com/cbbi/">CBBI</a>, a public index</td>
+<td class="nw">0.96</td>
+<td class="nw">0.92</td>
+<td class="nw">0.04</td>
+<td class="nw">0.31</td>
+</tr>
+<tr>
+<td>Price / 4-year average alone</td>
+<td class="nw">0.97</td>
+<td class="nw">0.78</td>
+<td class="nw">0.05</td>
+<td class="nw">0.10</td>
+</tr>
+<tr>
+<td>Power-law trend deviation alone</td>
+<td class="nw">0.95</td>
+<td class="nw">0.78</td>
+<td class="nw">0.08</td>
+<td class="nw">0.03</td>
+</tr>
+<tr>
+<td class="nw">MVRV alone</td>
+<td class="nw">0.90</td>
+<td class="nw">0.92</td>
+<td class="nw">0.08</td>
+<td class="nw">0.29</td>
+</tr>
+<tr>
+<td class="nw">Monthly RSI alone</td>
+<td class="nw">0.89</td>
+<td class="nw">0.85</td>
+<td class="nw">0.56</td>
+<td class="nw">0.48</td>
+</tr>
+<tr>
+<td>Plain average of all 45 indicators</td>
+<td class="nw">0.83</td>
+<td class="nw">0.70</td>
+<td class="nw">0.14</td>
+<td class="nw">0.23</td>
+</tr>
+<tr>
+<td class="nw">Halving calendar alone</td>
+<td class="nw">0.62</td>
+<td class="nw">0.83</td>
+<td class="nw">0.02</td>
+<td class="nw">0.02</td>
+</tr>
+<tr>
+<td class="nw">Puell Multiple alone</td>
+<td class="nw">0.61</td>
+<td class="nw">0.69</td>
+<td class="nw">0.06</td>
+<td class="nw">0.22</td>
+</tr>
+<tr>
+<td class="nw">Mayer Multiple alone</td>
+<td class="nw">0.51</td>
+<td class="nw">0.73</td>
+<td class="nw">0.09</td>
+<td class="nw">0.17</td>
+</tr>
+<tr>
+<td class="nw">Fear &amp; Greed alone</td>
+<td class="nw">0.48</td>
+<td class="nw">0.70</td>
+<td class="nw">0.18</td>
+<td class="nw">0.19</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>CBBI is the fair rival, with two asterisks.</strong> Its scale is fitted to the whole history with hindsight, so its past readings are not a blind test. It also draws on coin-age data that is not free for the full history. This metric uses only free data and never looks ahead, and lands within a few hundredths of it.</p>
+<p><strong>The two disagree about today.</strong> Both say low. CBBI says 0.31 and this metric says 0.15, so treat the truth as somewhere in that range.</p>
+<p><strong>No single indicator does every job.</strong> The two trend gauges follow the cycle's path best, yet read only 0.78 at tops. MVRV reads high at tops and follows the path less well. Blending them gives a decathlete, not a sprinter: never the best at one event, good at all of them.</p>
+<p><strong>The calendar alone is a stopped clock.</strong> It looks fine on the day of each turn and poor in between, with a match of 0.62. That is why it stays a separate dial.</p>
+<h2 id="what-it-cannot-do">What it cannot do</h2>
+<p>The metric can tell you the season. It cannot tell you the day, the size of the next move, or anything that has never happened before.</p>
+<p><strong>It arrives early, especially at tops.</strong> The table shows the first day the reading entered its extreme zone before each cycle turn, and where price stood that day.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Turn</th>
+<th>First day in the extreme zone</th>
+<th>Days before the turn</th>
+<th>Price that day against the turn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nw">December 2017 top</td>
+<td class="nw">4 January 2017</td>
+<td class="nw">346</td>
+<td class="nw">94% below the top</td>
+</tr>
+<tr>
+<td class="nw">November 2021 top</td>
+<td class="nw">17 December 2020</td>
+<td class="nw">326</td>
+<td class="nw">66% below the top</td>
+</tr>
+<tr>
+<td class="nw">October 2025 top</td>
+<td class="nw">28 February 2024</td>
+<td class="nw">586</td>
+<td class="nw">50% below the top</td>
+</tr>
+<tr>
+<td class="nw">January 2015 bottom</td>
+<td class="nw">1 November 2014</td>
+<td class="nw">74</td>
+<td class="nw">85% above the low</td>
+</tr>
+<tr>
+<td class="nw">December 2018 bottom</td>
+<td class="nw">19 November 2018</td>
+<td class="nw">26</td>
+<td class="nw">50% above the low</td>
+</tr>
+<tr>
+<td class="nw">November 2022 bottom</td>
+<td class="nw">13 June 2022</td>
+<td class="nw">149</td>
+<td class="nw">42% above the low</td>
+</tr>
+</tbody>
+</table></div>
+<p>Selling on the first Very high reading in January 2017 would have meant missing a seventeen-fold rise. The zones are a warning light, not a sell-by date.</p>
+<p><strong>It is a gauge, not a money machine.</strong> A mechanical rule was tested: keep a share of your money in bitcoin equal to one minus the reading, adjust daily, and pay 0.1% on every trade.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Starting</th>
+<th>Money multiplied, rule</th>
+<th>Money multiplied, just holding</th>
+<th>Worst drop, rule</th>
+<th>Worst drop, just holding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nw">July 2013</td>
+<td class="nw">15.8x</td>
+<td class="nw">668x</td>
+<td class="nw">−60%</td>
+<td class="nw">−85%</td>
+</tr>
+<tr>
+<td class="nw">January 2015</td>
+<td class="nw">15.5x</td>
+<td class="nw">186x</td>
+<td class="nw">−50%</td>
+<td class="nw">−84%</td>
+</tr>
+<tr>
+<td class="nw">January 2018</td>
+<td class="nw">4.5x</td>
+<td class="nw">4.3x</td>
+<td class="nw">−50%</td>
+<td class="nw">−81%</td>
+</tr>
+</tbody>
+</table></div>
+<p>Holding won by a mile over the long run, because the rule sells early in bull markets. What the rule bought was a smaller worst drop. A second rule, all in below a reading of 0.3 and all out above 0.7, did worse than this one in every period.</p>
+<p><strong>Three cycles is three data points.</strong> A recipe that fits three cycles this well can still be fooled by the fourth, and bitcoin's cycles have been getting tamer in ways a backward-looking ruler only catches up with later.</p>
+<p><strong>Today's number is soft.</strong> Every design choice was nudged in turn, 24 variations in all. Today's reading moved between 0.07 and 0.20, and the average reading at tops between 0.86 and 0.94.</p>
+<p><strong>Some data could not be used.</strong> Coin-age data, which tracks how long coins have sat still, is not free for the full history. Interest rates, the dollar and money supply could not be reached from the machine that runs this. Futures data such as funding rates was blocked too.</p>
+<p><strong>It cannot see what has never happened.</strong> It measures where price sits against its own past. News, regulation and anything new to this cycle are outside its view. It is a thermometer, not a doctor, and none of this is financial advice.</p>
+<h2 id="how-it-stays-current">How it stays current</h2>
+<p>The <a href="./">website</a> rebuilds itself every day at about 05:17 UTC, which is 1:17 PM in UTC+8, with nobody involved, and tries again twelve hours later. Bitcoin's trading day closes at midnight UTC, and the run waits a few hours for the data sites to publish the finished day.</p>
+<ol>
+<li>A scheduled GitHub Actions job starts and fetches the latest code.</li>
+<li>It downloads the whole history again from the free sources. Nothing is cached, so a corrected figure upstream is picked up automatically.</li>
+<li>It re-runs the model and the entire backtest, then checks the result: a fresh date, a reading between 0 and 1, every file present.</li>
+<li>It rebuilds the website around the ten new data files and publishes it.</li>
+</ol>
+<p>The whole run takes a few minutes. If any step fails, nothing is published: the website keeps the previous day's numbers, and says so once they are more than two days old.</p>
+<p><strong>Where the data comes from.</strong> All of it is free and needs no account.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>What it provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://community-api.coinmetrics.io/v4">Coin Metrics community data</a></td>
+<td>Daily price since July 2010, market value, MVRV, supply, mining and network activity</td>
+</tr>
+<tr>
+<td class="nw"><a href="https://api.blockchain.info/charts">Blockchain.com charts</a></td>
+<td>Extra mining and transaction series</td>
+</tr>
+<tr>
+<td class="nw"><a href="https://api.exchange.coinbase.com">Coinbase Exchange</a></td>
+<td>Daily candles, kept as a second opinion on price. No indicator uses them.</td>
+</tr>
+<tr>
+<td class="nw"><a href="https://api.alternative.me/fng/">alternative.me</a></td>
+<td>The Fear &amp; Greed index, from February 2018</td>
+</tr>
+<tr>
+<td class="nw"><a href="https://stablecoins.llama.fi/stablecoincharts/all">DefiLlama</a></td>
+<td class="nw">Stablecoin supply</td>
+</tr>
+<tr>
+<td class="nw"><a href="https://colintalkscrypto.com/cbbi/">CBBI</a></td>
+<td>A benchmark to compare against. It is never an input.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Where the code lives.</strong> Everything is in the GitHub repository <a href="https://github.com/BuildAnythingWithCode/repo2">BuildAnythingWithCode/repo2</a>, and its <a href="https://github.com/BuildAnythingWithCode/repo2/blob/main/README.md">README</a> says what each file does. It is about 2,300 lines of Python and needs only three common packages.</p>
+<ul>
+<li><code>python3 -I scripts/refresh.py</code> rebuilds everything from scratch in about two minutes.</li>
+<li><code>python3 -I scripts/check_no_peeking.py</code> re-runs the proof that no reading uses later data.</li>
+</ul>
+<p>Every number on the dashboard comes from ten data files published beside it, such as <a href="data/today.json">today.json</a> and <a href="data/history.json">history.json</a>, so anyone can check them.</p>
+</div>
+</article>
+</main>
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <p>Rebuilt every day from free public data. The reading describes where bitcoin sits against its own history. It is not a forecast and not financial advice. Code and method: <a href="https://github.com/BuildAnythingWithCode/repo2">BuildAnythingWithCode/repo2</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>

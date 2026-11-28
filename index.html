@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en" class="cds-root" data-v="202611281417">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bitcoin Risk Metric</title>
+<meta name="description" content="Today&#x27;s reading is 0.15, in the Very low zone, on data through 27 Nov 2026. One number from 0 to 1 for where bitcoin sits in its market cycle, rebuilt every day from free public data.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0b0b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bitcoin Risk Metric">
+<meta property="og:title" content="Bitcoin Risk Metric">
+<meta property="og:description" content="Today&#x27;s reading is 0.15, in the Very low zone, on data through 27 Nov 2026. One number from 0 to 1 for where bitcoin sits in its market cycle, rebuilt every day from free public data.">
+<meta property="og:url" content="https://buildanythingwithcode.github.io/repo2/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://buildanythingwithcode.github.io/repo2/">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=f50961d3b9">
+<link rel="stylesheet" href="theme.css?v=285fd4b9c5">
+<link rel="stylesheet" href="style.css?v=f066ebd061">
+</head>
+<body>
+<a class="site-skip" href="#main">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="./"><img src="favicon.svg?v=f50961d3b9" alt="" width="22" height="22">Bitcoin Risk Metric</a>
+    <nav class="site-links" aria-label="Site">
+      <a href="./" aria-current="page">Dashboard</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="https://github.com/BuildAnythingWithCode/repo2">Code on GitHub</a>
+    </nav>
+  </div>
+</header>
+<main id="main" class="site-main">
+<p class="site-stale" id="site-stale" role="status" hidden></p>
+<div class="brm">
+
+  <header class="brm-head">
+    <h1 class="brm-title" id="title">Bitcoin Risk Metric</h1>
+    <p class="brm-lede" id="takeaway">
+      Bitcoin reads
+      <b class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="risk" data-row="0">—</b>
+      on a scale from 0 (conditions like past cycle lows) to 1 (conditions like past cycle highs). That puts it in the
+      <b class="dash-skeleton" data-draw="val" data-fmt="text" data-source="today" data-field="zone" data-row="0">—</b>
+      zone.
+    </p>
+    <p class="brm-asof">
+      Based on the daily close of
+      <span class="dash-skeleton" data-draw="val" data-fmt="date" data-source="today" data-field="date" data-row="0">—</span>
+      (UTC), when bitcoin traded at
+      <span class="dash-skeleton" data-draw="val" data-fmt="usd" data-source="today" data-field="price" data-row="0">—</span>.
+      It describes where price sits against its own history. It is not a forecast and not advice.
+    </p>
+  </header>
+
+  <section class="brm-card brm-hero" id="today" aria-labelledby="today-h">
+    <div class="brm-hero-main">
+      <h2 class="brm-eyebrow" id="today-h">Today's reading</h2>
+      <div class="brm-hero-fig">
+        <span class="brm-hero-num dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="risk" data-row="0">—</span>
+        <span class="brm-hero-zone">
+          <i class="brm-dot" data-draw="zone-dot" data-source="today" data-f="zone_index"></i>
+          <span class="dash-skeleton" data-draw="val" data-fmt="text" data-source="today" data-field="zone" data-row="0">—</span>
+        </span>
+      </div>
+      <div class="brm-meter brm-meter-lg dash-skeleton" data-draw="meter" data-ticks data-source="today" data-f="risk" role="img" aria-label="Where today's reading sits on the scale from 0 to 1"></div>
+      <div class="brm-scale-ends" aria-hidden="true">
+        <span>like past cycle lows</span>
+        <span>like past cycle highs</span>
+      </div>
+    </div>
+    <div class="brm-hero-side">
+      <p class="brm-change">
+        <b class="dash-skeleton" data-draw="val" data-fmt="signed" data-source="today" data-field="risk_change_30d" data-row="0">—</b>
+        over the last 30 days, from
+        <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="risk_30d_ago" data-row="0">—</span>.
+        Bitcoin's price changed by
+        <b class="dash-skeleton" data-draw="val" data-fmt="pctSigned" data-source="today" data-field="price_change_30d" data-row="0">—</b>
+        over the same 30 days.
+      </p>
+      <p class="brm-change">
+        In this zone for
+        <b class="dash-skeleton" data-draw="val" data-fmt="int" data-source="today" data-field="days_in_zone" data-row="0">—</b>
+        days, since
+        <span class="dash-skeleton" data-draw="val" data-fmt="date" data-source="today" data-field="zone_since" data-row="0">—</span>.
+      </p>
+      <div class="brm-zone-notes">
+        <span data-draw="zone-pick" data-source="today" data-f="zone_index"></span>
+        <p data-zone="0" hidden><b>What this zone has meant.</b> Price is about as washed out against its own history as it was around past cycle lows. Those lows were seasons, not days: the reading sat down here for months, and price was often still well above the eventual low when it first arrived.</p>
+        <p data-zone="1" hidden><b>What this zone has meant.</b> Closer to the conditions of past lows than of past highs, without being at an extreme.</p>
+        <p data-zone="2" hidden><b>What this zone has meant.</b> Mid-range. Neither stretched nor washed out against its own history.</p>
+        <p data-zone="3" hidden><b>What this zone has meant.</b> Running warm. Closer to the conditions of past highs than of past lows, without being at an extreme.</p>
+        <p data-zone="4" hidden><b>What this zone has meant.</b> Price is about as stretched against its own history as it was around past cycle highs. In past cycles this zone lit up many months before the final high, so treat it as a warning light, not a sell-by date.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="brm-section" id="lenses" aria-labelledby="lenses-h">
+    <h2 class="brm-h2" id="lenses-h">The three lenses behind the number</h2>
+    <p class="brm-sub">Seven indicators made the cut. They are grouped into three lenses so that no single idea dominates. Each lens is scored from 0 to 1 against its own history, and the three count equally.</p>
+    <div class="brm-tiles">
+      <article class="brm-card brm-lens" id="lens-trend">
+        <h3 class="brm-h3">Price vs. its long-run trend</h3>
+        <div class="brm-lens-fig">
+          <span class="brm-lens-num dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="trend" data-row="0">—</span>
+          <span class="brm-was">was <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="trend_30d_ago" data-row="0">—</span> 30 days ago</span>
+        </div>
+        <div class="brm-meter dash-skeleton" data-draw="meter" data-source="today" data-f="trend" role="img" aria-label="The trend lens on the scale from 0 to 1"></div>
+        <p class="brm-note">Price against its 4-year average of
+          <span class="dash-skeleton" data-draw="val" data-fmt="usd" data-source="today" data-field="avg_4y" data-row="0">—</span>:
+          <b class="dash-skeleton" data-draw="val" data-fmt="pctSigned" data-source="today" data-field="price_vs_avg_4y" data-row="0">—</b>.
+          Four gauges feed this lens: the 4-year and 2-year averages, a power-law growth curve and a long-run ceiling called Top price.</p>
+      </article>
+      <article class="brm-card brm-lens" id="lens-onchain">
+        <h3 class="brm-h3">Price vs. what holders paid</h3>
+        <div class="brm-lens-fig">
+          <span class="brm-lens-num dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="onchain" data-row="0">—</span>
+          <span class="brm-was">was <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="onchain_30d_ago" data-row="0">—</span> 30 days ago</span>
+        </div>
+        <div class="brm-meter dash-skeleton" data-draw="meter" data-source="today" data-f="onchain" role="img" aria-label="The holders lens on the scale from 0 to 1"></div>
+        <p class="brm-note">Price against the average price at which every coin last moved,
+          <span class="dash-skeleton" data-draw="val" data-fmt="usd" data-source="today" data-field="realized_price" data-row="0">—</span>:
+          <b class="dash-skeleton" data-draw="val" data-fmt="pctSigned" data-source="today" data-field="price_vs_realized" data-row="0">—</b>.
+          That average is a stand-in for what holders paid. This is the MVRV ratio, the one on-chain gauge that made the cut.</p>
+      </article>
+      <article class="brm-card brm-lens" id="lens-range">
+        <h3 class="brm-h3">Position in its own range</h3>
+        <div class="brm-lens-fig">
+          <span class="brm-lens-num dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="range" data-row="0">—</span>
+          <span class="brm-was">was <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="range_30d_ago" data-row="0">—</span> 30 days ago</span>
+        </div>
+        <div class="brm-meter dash-skeleton" data-draw="meter" data-source="today" data-f="range" role="img" aria-label="The range lens on the scale from 0 to 1"></div>
+        <p class="brm-note">Price against its record high of
+          <span class="dash-skeleton" data-draw="val" data-fmt="usd" data-source="today" data-field="record_high" data-row="0">—</span>
+          (<span class="dash-skeleton" data-draw="val" data-fmt="date" data-source="today" data-field="record_high_date" data-row="0">—</span>):
+          <b class="dash-skeleton" data-draw="val" data-fmt="pctSigned" data-source="today" data-field="from_record_high" data-row="0">—</b>.
+          Two gauges feed this lens: the fall from the record high, and where price sits between its 2-year low and high.</p>
+      </article>
+      <article class="brm-card brm-lens brm-aside" id="halving-clock">
+        <h3 class="brm-h3">Halving clock <span class="brm-tag">not in the score</span></h3>
+        <div class="brm-lens-fig">
+          <span class="brm-lens-num dash-skeleton" data-draw="val" data-fmt="risk" data-source="today" data-field="clock" data-row="0">—</span>
+          <span class="brm-was">calendar only</span>
+        </div>
+        <div class="brm-meter dash-skeleton" data-draw="meter" data-source="today" data-f="clock" role="img" aria-label="The halving clock on the scale from 0 to 1"></div>
+        <p class="brm-note">It is
+          <span class="dash-skeleton" data-draw="val" data-fmt="int" data-source="today" data-field="days_since_halving" data-row="0">—</span>
+          days since the last halving. On the timing of past cycles a low was due around
+          <span class="dash-skeleton" data-draw="val" data-fmt="date" data-source="today" data-field="clock_expected_bottom" data-row="0">—</span>
+          and the next high around
+          <span class="dash-skeleton" data-draw="val" data-fmt="date" data-source="today" data-field="clock_next_expected_top" data-row="0">—</span>.
+          Adding the calendar to the score was tested and did not make it better, so it stays a separate dial.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="brm-card" id="history" aria-labelledby="history-h">
+    <h2 class="brm-h2" id="history-h">Price since 2010, coloured by the reading</h2>
+    <p class="brm-sub">Top: bitcoin's price on a log scale, where equal steps are equal percentage moves. Each stretch of the line takes the colour of that day's reading. Dots mark the tops and bottoms of each cycle, with the reading on that day. Bottom: the reading itself.</p>
+    <ul class="brm-legend" aria-label="Colour key">
+      <li><i class="brm-swatch brm-z0"></i><span data-zone-name="0">Very low</span></li>
+      <li><i class="brm-swatch brm-z1"></i><span data-zone-name="1">Low</span></li>
+      <li><i class="brm-swatch brm-z2"></i><span data-zone-name="2">Neutral</span></li>
+      <li><i class="brm-swatch brm-z3"></i><span data-zone-name="3">High</span></li>
+      <li><i class="brm-swatch brm-z4"></i><span data-zone-name="4">Very high</span></li>
+      <li><i class="brm-swatch brm-nz"></i><span data-zone-name="-1">Not scored yet</span></li>
+    </ul>
+    <div class="brm-block">
+      <div class="brm-chart brm-chart-tall dash-skeleton" id="history-chart" data-draw="history-chart" data-source="history turns" data-label="Bitcoin's price since 2010 on a log scale, coloured by the risk reading, with the reading itself in a second panel below"></div>
+      <p class="brm-err" hidden>This chart could not load its data. The rest of the page still works.</p>
+    </div>
+    <p class="brm-foot">Scores start on
+      <span class="dash-skeleton" data-draw="val" data-fmt="date" data-source="today" data-field="first_score" data-row="0">—</span>.
+      Before that the method is still learning what high and low look like, so the line is dashed.</p>
+  </section>
+
+  <section class="brm-card" id="recent" aria-labelledby="recent-h">
+    <h2 class="brm-h2" id="recent-h">The last two years</h2>
+    <p class="brm-sub">The same two panels, zoomed in, with price on a plain scale.</p>
+    <div class="brm-block">
+      <div class="brm-chart dash-skeleton" id="recent-chart" data-draw="recent-chart" data-source="history turns" data-label="Bitcoin's price over the last two years, coloured by the risk reading, with the reading itself in a second panel below"></div>
+      <p class="brm-err" hidden>This chart could not load its data. The rest of the page still works.</p>
+    </div>
+  </section>
+
+  <section class="brm-card" id="indicators" aria-labelledby="indicators-h">
+    <h2 class="brm-h2" id="indicators-h">What each indicator says today</h2>
+    <p class="brm-sub">
+      <span class="dash-skeleton" data-draw="val" data-fmt="int" data-source="today" data-field="indicators_tested" data-row="0">—</span>
+      indicators were built and tested, and
+      <span class="dash-skeleton" data-draw="val" data-fmt="int" data-source="today" data-field="indicators_in_score" data-row="0">—</span>
+      made the score. Each dot is one indicator's reading today, on the same 0 to 1 scale, grouped by family.</p>
+    <ul class="brm-legend" aria-label="Dot key">
+      <li><i class="brm-key brm-key-core"></i>In the score (coloured by zone)</li>
+      <li><i class="brm-key brm-key-ctx"></i>Watched, not in the score</li>
+      <li><i class="brm-key brm-key-out"></i>Left out on purpose</li>
+    </ul>
+    <div class="brm-block">
+      <div class="brm-chart brm-chart-strip dash-skeleton" id="indicator-strip" data-draw="ind-strip" data-source="indicators" data-label="Every indicator's reading today on the scale from 0 to 1, one row per family"></div>
+      <p class="brm-err" hidden>This chart could not load its data. The rest of the page still works.</p>
+    </div>
+
+    <h3 class="brm-h3 brm-gap">The seven in the score</h3>
+    <div class="brm-block">
+      <div class="brm-table-wrap">
+        <table class="brm-table" id="core-table" data-source="indicators" data-row-key="id">
+          <thead><tr>
+            <th data-field="label">Indicator</th>
+            <th data-field="family_label" class="brm-wide-only">Lens</th>
+            <th data-field="value">Right now</th>
+            <th data-field="score" class="brm-r">Reading</th>
+            <th data-field="score_30d_ago" class="brm-r brm-wide-only">30 days ago</th>
+          </tr></thead>
+          <tbody data-draw="core-rows"></tbody>
+        </table>
+      </div>
+      <p class="brm-err" hidden>This table could not load its data.</p>
+    </div>
+
+    <details class="brm-details" id="all-indicators">
+      <summary>All
+        <span class="dash-skeleton" data-draw="val" data-fmt="int" data-source="today" data-field="indicators_tested" data-row="0">—</span>
+        indicators, and how well each one followed past cycles</summary>
+      <p class="brm-sub">“Followed past cycles” is each indicator's day-by-day match with the hindsight path of every cycle up to the 2025 high: 1.00 would be a perfect match, 0 no relation, and below 0 means it ran backwards. Only indicators at 0.75 or better made the score. The blind test further down re-runs that same rule using only the data that existed before each cycle.</p>
+      <div class="brm-block">
+        <div class="brm-table-wrap">
+          <table class="brm-table" id="all-table" data-source="indicators" data-row-key="id">
+            <thead><tr>
+              <th data-field="label">Indicator</th>
+              <th data-field="family_label" class="brm-wide-only">Family</th>
+              <th data-field="role">Role</th>
+              <th data-field="score" class="brm-r">Reading</th>
+              <th data-field="skill" class="brm-r">Followed past cycles</th>
+              <th data-field="scored_since" class="brm-r brm-wide-only">Scored since</th>
+            </tr></thead>
+            <tbody data-draw="all-rows"></tbody>
+          </table>
+        </div>
+        <p class="brm-err" hidden>This table could not load its data.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="brm-card" id="track-record" aria-labelledby="track-h">
+    <h2 class="brm-h2" id="track-h">How it did on past cycles</h2>
+    <p class="brm-sub">Every past reading was made with only the data that existed on that day. Hindsight was used once, to choose which indicators to trust. The blind test below shows what happens without it.</p>
+
+    <div class="brm-tiles brm-tiles-flat">
+      <div class="brm-stat" id="grade-tops">
+        <div class="brm-stat-label">Average reading on cycle tops</div>
+        <div class="brm-stat-num dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="top_reading_mean" data-row="0">—</div>
+        <div class="brm-stat-note">2017, 2021 and 2025. A perfect gauge would read 1. The lowest was
+          <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="top_reading_lowest" data-row="0">—</span>.</div>
+      </div>
+      <div class="brm-stat" id="grade-bottoms">
+        <div class="brm-stat-label">Average reading on cycle bottoms</div>
+        <div class="brm-stat-num dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="bottom_reading_mean" data-row="0">—</div>
+        <div class="brm-stat-note">2015, 2018 and 2022. A perfect gauge would read 0. The highest was
+          <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="bottom_reading_highest" data-row="0">—</span>.</div>
+      </div>
+      <div class="brm-stat" id="grade-tracking">
+        <div class="brm-stat-label">Match with the hindsight path</div>
+        <div class="brm-stat-num dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="tracking" data-row="0">—</div>
+        <div class="brm-stat-note">How closely the reading followed where price really sat inside each cycle, day by day. 1.00 would be perfect.</div>
+      </div>
+      <div class="brm-stat" id="grade-range">
+        <div class="brm-stat-label">Today under other design choices</div>
+        <div class="brm-stat-num"><span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="range_latest_min" data-row="0">—</span> to <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="range_latest_max" data-row="0">—</span></div>
+        <div class="brm-stat-note">Every setting was nudged in turn. Today's number is one point inside this range, not a hard fact.</div>
+      </div>
+    </div>
+
+    <h3 class="brm-h3 brm-gap" id="turns-h">The reading on every top and bottom</h3>
+    <p class="brm-sub">A perfect gauge would read 1 on every top and 0 on every bottom.</p>
+    <div class="brm-block">
+      <div class="brm-table-wrap">
+        <table class="brm-table" id="turns-table" data-source="turns" data-row-key="name">
+          <thead><tr>
+            <th data-field="name">Turn</th>
+            <th data-field="size" class="brm-wide-only">Size</th>
+            <th data-field="date" class="brm-wide-only">Date</th>
+            <th data-field="price" class="brm-r">Price</th>
+            <th data-field="risk" class="brm-r">Reading</th>
+          </tr></thead>
+          <tbody data-draw="turn-rows"></tbody>
+        </table>
+      </div>
+      <p class="brm-err" hidden>This table could not load its data.</p>
+    </div>
+
+    <h3 class="brm-h3 brm-gap" id="next-h">What price did over the following 12 months</h3>
+    <p class="brm-sub">Every scored day since 2013, grouped by its reading. These days are not independent: they come from a handful of cycles, so read the pattern, not the decimals.</p>
+    <div class="brm-block">
+      <div class="brm-table-wrap">
+        <table class="brm-table" id="zones-table" data-source="zones" data-row-key="zone">
+          <thead><tr>
+            <th data-field="zone_name">Zone</th>
+            <th data-field="zone" class="brm-wide-only">Reading</th>
+            <th data-field="days" class="brm-r brm-wide-only">Days</th>
+            <th data-field="median_fwd_return">Typical change, next 12 months</th>
+            <th data-field="share_positive" class="brm-r">Higher a year later</th>
+            <th data-field="median_worst_drawdown" class="brm-r">Typical worst dip on the way</th>
+          </tr></thead>
+          <tbody data-draw="zone-rows"></tbody>
+        </table>
+      </div>
+      <p class="brm-err" hidden>This table could not load its data.</p>
+    </div>
+
+    <details class="brm-details" id="early-warnings">
+      <summary>The price of an early warning: how far price still ran after the reading first hit an extreme</summary>
+      <p class="brm-sub">The reading reaches its extreme zones well before the turn. For each cycle top this shows the first day at or above
+        <span data-draw="edge" data-i="4">—</span>, and for each bottom the first day at or below
+        <span data-draw="edge" data-i="1">—</span>, with where price stood against the eventual turn.</p>
+      <div class="brm-block">
+        <div class="brm-table-wrap">
+          <table class="brm-table" id="early-table" data-source="early" data-row-key="name">
+            <thead><tr>
+              <th data-field="name">Turn</th>
+              <th data-field="first_entry" class="brm-wide-only">First day in the zone</th>
+              <th data-field="days_before_turn" class="brm-r">Days before the turn</th>
+              <th data-field="first_entry_gap" class="brm-r">Price that day vs. the turn</th>
+              <th data-field="days_in_zone" class="brm-r brm-wide-only">Days spent in the zone</th>
+              <th data-field="avg_gap_in_zone" class="brm-r">Average price in the zone vs. the turn</th>
+            </tr></thead>
+            <tbody data-draw="early-rows"></tbody>
+          </table>
+        </div>
+        <p class="brm-err" hidden>This table could not load its data.</p>
+      </div>
+    </details>
+
+    <details class="brm-details" id="blind-test">
+      <summary>Blind test: the recipe rebuilt without seeing the cycle it is graded on</summary>
+      <p class="brm-sub">For each test, the same selection rule picked indicators using only the data up to one cycle top, and the result was graded on the cycle that followed. The third row of each group is the final recipe, which has seen those cycles, for comparison.</p>
+      <div class="brm-block">
+        <div class="brm-table-wrap">
+          <table class="brm-table" id="blind-table" data-source="blind" data-row-key="id">
+            <thead><tr>
+              <th data-field="cycle">Graded on</th>
+              <th data-field="row_kind">How it was built</th>
+              <th data-field="recipe" class="brm-wide-only">Recipe</th>
+              <th data-field="reading_at_top" class="brm-r">Reading at the top</th>
+              <th data-field="reading_at_bottom" class="brm-r">Reading at the bottom</th>
+              <th data-field="tracking" class="brm-r">Match with the hindsight path</th>
+            </tr></thead>
+            <tbody data-draw="blind-rows"></tbody>
+          </table>
+        </div>
+        <p class="brm-err" hidden>This table could not load its data.</p>
+      </div>
+    </details>
+
+    <details class="brm-details" id="comparison">
+      <summary>How it compares with single indicators and a public index</summary>
+      <p class="brm-sub">Each gauge was put on the same kind of 0 to 1 ruler and graded the same way on the three complete cycles. CBBI is a well-known public index. Its scale is fitted with hindsight to the whole history, so its past readings are not a blind test, and it draws on coin-age data that is not free for the full history.</p>
+      <div class="brm-block">
+        <div class="brm-table-wrap">
+          <table class="brm-table" id="baselines-table" data-source="baselines" data-row-key="id">
+            <thead><tr>
+              <th data-field="name">Gauge</th>
+              <th data-field="tracking" class="brm-r">Match with the hindsight path</th>
+              <th data-field="top_reading_mean" class="brm-r">Average at tops</th>
+              <th data-field="bottom_reading_mean" class="brm-r">Average at bottoms</th>
+              <th data-field="latest" class="brm-r">Today</th>
+            </tr></thead>
+            <tbody data-draw="baseline-rows"></tbody>
+          </table>
+        </div>
+        <p class="brm-err" hidden>This table could not load its data.</p>
+      </div>
+    </details>
+
+    <details class="brm-details" id="strategy">
+      <summary>If you had traded on it: a gauge, not a money machine</summary>
+      <p class="brm-sub">Two mechanical rules that follow the reading, against simply holding bitcoin from the same start date. Every trade costs 0.1%, there are no taxes, and cash earns nothing. Over the full history holding won by a wide margin, because the rules sell early in bull markets. What the rules bought was a smaller worst drop.</p>
+      <div class="brm-block">
+        <div class="brm-table-wrap">
+          <table class="brm-table" id="strategy-table" data-source="strategy" data-row-key="id">
+            <thead><tr>
+              <th data-field="start">From</th>
+              <th data-field="rule_name">Rule</th>
+              <th data-field="rule_final_multiple" class="brm-r">Money multiplied, rule</th>
+              <th data-field="hold_final_multiple" class="brm-r">Money multiplied, holding</th>
+              <th data-field="rule_max_drawdown" class="brm-r">Worst drop, rule</th>
+              <th data-field="hold_max_drawdown" class="brm-r">Worst drop, holding</th>
+            </tr></thead>
+            <tbody data-draw="strategy-rows"></tbody>
+          </table>
+        </div>
+        <p class="brm-err" hidden>This table could not load its data.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="brm-card brm-limits" id="limits" aria-labelledby="limits-h">
+    <h2 class="brm-h2" id="limits-h">Read this before you lean on it</h2>
+    <ul class="brm-list">
+      <li><b>It marks seasons, not days.</b> The Very high zone first lit up
+        <span class="dash-skeleton" data-draw="val" data-fmt="int" data-source="early" data-field="days_before_turn" data-where="name=Dec 2017 top">—</span>,
+        <span class="dash-skeleton" data-draw="val" data-fmt="int" data-source="early" data-field="days_before_turn" data-where="name=Nov 2021 top">—</span> and
+        <span class="dash-skeleton" data-draw="val" data-fmt="int" data-source="early" data-field="days_before_turn" data-where="name=Oct 2025 top">—</span>
+        days before the last three cycle tops. On that first day in 2017, price stood at
+        <span class="dash-skeleton" data-draw="val" data-fmt="pctSigned" data-source="early" data-field="first_entry_gap" data-where="name=Dec 2017 top">—</span>
+        against its eventual top.</li>
+      <li><b>Recent tops read lower.</b> The 2021 and 2025 tops read
+        <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="turns" data-field="risk" data-where="name=Nov 2021 top">—</span> and
+        <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="turns" data-field="risk" data-where="name=Oct 2025 top">—</span>, not 1.
+        In the blind test they read
+        <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="blind" data-field="reading_at_top" data-where="id=rule75_2018-21">—</span> and
+        <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="blind" data-field="reading_at_top" data-where="id=rule75_2022-25">—</span>.
+        Each cycle has been tamer than the one before, and a gauge built on the past is always a little behind that.</li>
+      <li><b>Three complete cycles is three data points.</b> A recipe that fits three cycles this well can still be fooled by the fourth. The recipe was also chosen by someone who had seen all three.</li>
+      <li><b>Today's number is soft.</b> Nudging the design moves today's reading between
+        <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="range_latest_min" data-row="0">—</span> and
+        <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="grades" data-field="range_latest_max" data-row="0">—</span>.
+        CBBI, an independent public index, reads
+        <span class="dash-skeleton" data-draw="val" data-fmt="risk" data-source="baselines" data-field="latest" data-where="id=cbbi">—</span>
+        today. Both say low. They disagree on how low.</li>
+      <li><b>It cannot see what has never happened.</b> It measures where price sits against its own past. News, regulation and anything new to this cycle are outside its view. It is a thermometer, not a doctor.</li>
+    </ul>
+  </section>
+
+  <details class="brm-details brm-card" id="method">
+    <summary>How the number is made</summary>
+    <ol class="brm-list">
+      <li><b>Collect.</b> Free public data, re-downloaded every day: price, market value, what holders paid, mining and network activity. Sources are Coin Metrics community data, Blockchain.com, Coinbase, alternative.me and DefiLlama.</li>
+      <li><b>Measure.</b> The data becomes the indicators listed above. Distances from trend are divided by bitcoin's own long-run volatility, so that a doubling in 2013 and a doubling in 2025 are not treated as the same event.</li>
+      <li><b>Give each indicator its own ruler.</b> The level of its past lows is 0 and the level of its past highs is 1, with older history slowly fading. The ruler is read with a one-year delay, so that a blow-off cannot stretch the ruler it is being measured with.</li>
+      <li><b>Blend.</b> The indicators inside each lens are averaged, then the three lenses are averaged.</li>
+      <li><b>Smooth the ends.</b> One S-curve lets the extremes approach 0 and 1 without ever sticking to them, so the most extreme day still gets the most extreme reading.</li>
+    </ol>
+    <p class="brm-sub">The code, the full backtest and a <a href="how-it-works.html">plain-English write-up</a> are in the GitHub repository <a href="https://github.com/BuildAnythingWithCode/repo2">BuildAnythingWithCode/repo2</a>. Every number on this page comes from ten data files published with it, such as <a href="data/today.json">today.json</a> and <a href="data/history.json">history.json</a>.</p>
+    <p class="brm-foot">Last rebuilt
+      <span class="dash-skeleton" data-draw="val" data-fmt="text" data-source="today" data-field="built_at" data-row="0">—</span>.</p>
+  </details>
+
+</div>
+</main>
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <p>Rebuilt every day from free public data. The reading describes where bitcoin sits against its own history. It is not a forecast and not financial advice. Code and method: <a href="https://github.com/BuildAnythingWithCode/repo2">BuildAnythingWithCode/repo2</a>.</p>
+  </div>
+</footer>
+<script src="vendor/d3.min.js?v=f2094bbf61"></script>
+<script src="shim.js?v=f7acb3b7e9"></script>
+<script src="app.js?v=416fab555b"></script>
+</body>
+</html>

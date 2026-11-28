@@ -1,0 +1,264 @@
+/* The public website's own theme.
+
+   The dashboard's page code (dashboard/style.css and app.js) was written for Claude's dashboard,
+   which supplies a set of colour and size tokens. This file supplies the same tokens with plain
+   values, in a light and a dark version, plus the few things a stand-alone page needs: the top
+   bar, the footer and the typography of the write-up page.
+
+   Like the page Claude draws the dashboard in, <html> carries class="cds-root" (see
+   template.html), so the dashboard's own dark-mode rules in dashboard/style.css apply here too. */
+
+:root {
+  color-scheme: light dark;
+
+  --site-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --site-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --site-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-anthropic-sans: var(--site-sans);
+  --font-anthropic-serif: var(--site-serif);
+
+  /* text and surfaces */
+  --color-bg: #f9f9f7;
+  --color-panel: #ffffff;
+  --color-fg: #0b0b0b;
+  --color-fg-muted: #6b6963;
+  --color-border-line: rgba(11, 11, 11, 0.1);
+  --color-bad: #8e2626;
+  --cds-text-secondary: #52514e;
+  --cds-border: rgba(11, 11, 11, 0.1);
+  --cds-surface-popover: #ffffff;
+  --cds-shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+  --site-link: #1f5fae;
+  --site-code-bg: rgba(11, 11, 11, 0.05);
+
+  /* charts: five risk zones run blue (low) through grey to red (high) */
+  --cds-chart-axis: #c3c2b7;
+  --cds-chart-reference: #898781;
+  --cds-chart-muted: #c3c2b7;
+  --cds-chart-grid: rgba(11, 11, 11, 0.1);
+  --cds-chart-diverging-1: #256abf;
+  --cds-chart-diverging-2: #5598e7;
+  --cds-chart-diverging-3: #9ec5f4;
+  --cds-chart-diverging-4: #f0efec;
+  --cds-chart-diverging-5: #f4abab;
+  --cds-chart-diverging-6: #e66767;
+  --cds-chart-diverging-7: #b93535;
+
+  /* sizes */
+  --cds-font-size-caption: 0.75rem;
+  --cds-font-size-body: 0.875rem;
+  --cds-font-size-heading: 0.9375rem;
+  --cds-font-size-title: 1.375rem;
+  --cds-font-weight-medium: 500;
+  --cds-gap-xs: 0.5rem;
+  --cds-gap-sm: 0.75rem;
+  --cds-gap-md: 1rem;
+  --cds-gap-lg: 1.75rem;
+  --cds-gap-xl: 2.5rem;
+  --cds-pad-sm: 0.5rem;
+  --cds-pad-md: 0.75rem;
+  --cds-pad-lg: 1rem;
+  --cds-radius: 0.5rem;
+
+  --site-width: 1120px;
+  --site-gutter: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0b0b0b;
+    --color-panel: #1a1a19;
+    --color-fg: #f0efec;
+    --color-fg-muted: #9a9891;
+    --color-border-line: rgba(255, 255, 255, 0.1);
+    --color-bad: #ec7e7e;
+    --cds-text-secondary: #c3c2b7;
+    --cds-border: rgba(255, 255, 255, 0.1);
+    --cds-surface-popover: #20201f;
+    --cds-shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.32), 0 2px 6px rgba(0, 0, 0, 0.2);
+    --site-link: #8ab8f0;
+    --site-code-bg: rgba(255, 255, 255, 0.07);
+
+    --cds-chart-axis: #383835;
+    --cds-chart-reference: #97958d;
+    --cds-chart-muted: #5f5e5a;
+    --cds-chart-grid: rgba(255, 255, 255, 0.1);
+    --cds-chart-diverging-1: #6da7ec;
+    --cds-chart-diverging-2: #2a78d6;
+    --cds-chart-diverging-3: #184f95;
+    --cds-chart-diverging-4: #383835;
+    --cds-chart-diverging-5: #8e2626;
+    --cds-chart-diverging-6: #d03b3b;
+    --cds-chart-diverging-7: #ec7e7e;
+  }
+}
+
+@media (min-width: 720px) {
+  :root { --site-gutter: 32px; }
+}
+
+/* ---- base ---- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--site-sans);
+  font-size: 1rem;
+  line-height: 1.45;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+[hidden] { display: none !important; }
+a { color: var(--site-link); text-underline-offset: 0.15em; }
+a:focus-visible, summary:focus-visible, button:focus-visible {
+  outline: 2px solid var(--site-link);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.brm a { color: var(--site-link); }
+
+/* values still loading */
+.dash-skeleton { animation: site-pulse 1.4s ease-in-out infinite; }
+@keyframes site-pulse { 50% { opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) { .dash-skeleton { animation: none; } }
+
+/* ---- skip link ---- */
+.site-skip {
+  position: absolute; left: var(--site-gutter); top: -100px;
+  background: var(--color-panel); color: var(--color-fg);
+  padding: 8px 12px; border-radius: var(--cds-radius); border: 1px solid var(--color-border-line);
+  z-index: 10;
+}
+.site-skip:focus { top: 8px; }
+
+/* ---- top bar ---- */
+.site-nav { border-bottom: 1px solid var(--color-border-line); }
+.site-nav-inner {
+  max-width: calc(var(--site-width) + 2 * var(--site-gutter));
+  margin: 0 auto;
+  padding: 12px var(--site-gutter);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap;
+}
+.site-brand {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--color-fg); text-decoration: none;
+  font-weight: 500; font-size: 0.95rem; white-space: nowrap;
+}
+.site-brand img { width: 22px; height: 22px; display: block; }
+.site-links { display: flex; gap: 4px 18px; flex-wrap: wrap; font-size: 0.9rem; }
+.site-links a { color: var(--color-fg-muted); text-decoration: none; padding: 2px 0; }
+.site-links a:hover { color: var(--color-fg); }
+.site-links a[aria-current="page"] {
+  color: var(--color-fg);
+  text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px;
+}
+
+/* ---- page body ---- */
+.site-main {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: calc(var(--site-width) + 2 * var(--site-gutter));
+  margin: 0 auto;
+  padding: 28px var(--site-gutter) 48px;
+}
+.site-stale {
+  margin: 0 0 20px;
+  padding: 10px 14px;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-line);
+  border-left: 3px solid var(--color-bad);
+  border-radius: var(--cds-radius);
+  font-size: 0.9rem;
+}
+
+/* ---- footer ---- */
+.site-foot { border-top: 1px solid var(--color-border-line); color: var(--color-fg-muted); font-size: 0.85rem; }
+.site-foot-inner {
+  max-width: calc(var(--site-width) + 2 * var(--site-gutter));
+  margin: 0 auto;
+  padding: 18px var(--site-gutter) 28px;
+}
+.site-foot p { margin: 0; max-width: 80ch; }
+.site-foot a { color: inherit; }
+
+/* ---- write-up page ---- */
+/* Phones: title, then the contents list, then the text. Wide screens: the contents list sits on the left. */
+.doc-layout { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "toc" "body"; gap: 24px; }
+.doc-head { grid-area: head; }
+.doc-toc { grid-area: toc; }
+.doc-body { grid-area: body; min-width: 0; }
+.doc-head > :last-child { margin-bottom: 0; }
+@media (min-width: 1040px) {
+  .doc-layout {
+    grid-template-columns: 13.5rem minmax(0, 46rem);
+    grid-template-areas: "toc head" "toc body";
+    column-gap: 56px; row-gap: 8px; justify-content: center;
+  }
+  .doc-toc { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow: auto; }
+}
+.doc-toc {
+  font-size: 0.875rem;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-line);
+  border-radius: var(--cds-radius);
+  padding: 12px 16px;
+}
+@media (min-width: 1040px) {
+  .doc-toc { background: none; border: 0; padding: 4px 0 0; }
+}
+.doc .doc-toc-h { margin: 0 0 6px; font-weight: 500; color: var(--color-fg-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.4; }
+.doc .doc-toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.doc .doc-toc li { margin: 0; }
+.doc-toc a { color: var(--color-fg-muted); text-decoration: none; display: block; padding: 3px 0; line-height: 1.3; }
+.doc-toc a:hover { color: var(--color-fg); }
+
+.doc { min-width: 0; font-size: 1.0625rem; line-height: 1.65; margin: 0; }
+.doc h1 {
+  font-family: var(--site-serif); font-weight: 400;
+  font-size: clamp(1.9rem, 1.4rem + 2vw, 2.6rem); line-height: 1.15;
+  margin: 0 0 16px;
+}
+.doc h2 {
+  font-family: var(--site-serif); font-weight: 400;
+  font-size: 1.55rem; line-height: 1.25;
+  margin: 2.6rem 0 0.8rem; padding-top: 0.6rem;
+  border-top: 1px solid var(--color-border-line);
+  scroll-margin-top: 16px;
+}
+.doc h3 { font-size: 1.1rem; font-weight: 600; margin: 1.8rem 0 0.5rem; }
+.doc p, .doc ul, .doc ol { margin: 0 0 1rem; }
+.doc ul, .doc ol { padding-left: 1.4rem; }
+.doc li { margin: 0.3rem 0; }
+.doc li > p { margin: 0; }
+.doc strong { font-weight: 600; }
+.doc em { color: var(--cds-text-secondary); }
+.doc code {
+  font-family: var(--site-mono); font-size: 0.86em;
+  background: var(--site-code-bg); border-radius: 4px; padding: 0.1em 0.35em;
+}
+.doc pre {
+  background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius);
+  padding: 14px 16px; overflow-x: auto; line-height: 1.5; margin: 0 0 1.2rem;
+}
+.doc pre code { background: none; padding: 0; font-size: 0.85rem; }
+.doc hr { border: 0; border-top: 1px solid var(--color-border-line); margin: 2rem 0; }
+.doc blockquote { margin: 0 0 1rem; padding: 0 0 0 1rem; border-left: 3px solid var(--color-border-line); color: var(--cds-text-secondary); }
+
+.table-wrap { overflow-x: auto; margin: 0 0 1.4rem; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
+.doc table { border-collapse: collapse; width: 100%; font-size: 0.875rem; line-height: 1.4; }
+.doc th, .doc td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.doc th { font-weight: 500; color: var(--color-fg-muted); vertical-align: bottom; }
+.doc td.nw { white-space: nowrap; }
+.doc tr:last-child td { border-bottom: 0; }
+
+/* ---- not-found page ---- */
+.site-404 { max-width: 40rem; }
+.site-404 h1 { font-family: var(--site-serif); font-weight: 400; font-size: 2rem; margin: 0 0 12px; }
+
+/* phones: the contents card already separates the title from the text */
+@media (max-width: 1039px) {
+  .doc-body > h2:first-child { margin-top: 0.25rem; }
+}
